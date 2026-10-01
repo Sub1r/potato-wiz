@@ -56,6 +56,8 @@ class Config:
     OLLAMA_BASE_URL = os.environ.get('OLLAMA_BASE_URL', 'http://localhost:11434')
     OLLAMA_MODEL = os.environ.get('OLLAMA_MODEL', 'llama3.2')
     OLLAMA_TIMEOUT = int(os.environ.get('OLLAMA_TIMEOUT', '60'))
+    OLLAMA_VISION_MODEL = os.environ.get('OLLAMA_VISION_MODEL', '').strip()
+    OLLAMA_VISION_TIMEOUT = int(os.environ.get('OLLAMA_VISION_TIMEOUT', '120'))
 
     # ── OpenRouter ───────────────────────────────────────────────────────────
     OPENROUTER_API_KEY = os.environ.get('OPENROUTER_API_KEY', '')
@@ -92,6 +94,32 @@ class Config:
     # max_tokens budget on reasoning and return no/truncated content, so a low
     # effort keeps the answer inside the budget. Empty = not sent.
     OPENROUTER_REASONING_EFFORT = os.environ.get('OPENROUTER_REASONING_EFFORT', '').strip()
+    # Vision model, configured independently of the text model.  Must be a
+    # vision-capable model (catalog entry with "image" in input_modalities).
+    OPENROUTER_VISION_MODEL = os.environ.get('OPENROUTER_VISION_MODEL', '').strip()
+    OPENROUTER_VISION_TIMEOUT = int(os.environ.get('OPENROUTER_VISION_TIMEOUT', '120'))
+    OPENROUTER_VISION_MAX_TOKENS = _env_int('OPENROUTER_VISION_MAX_TOKENS', 2048,
+                                             minimum=512, maximum=4096)
+
+    # ── Screenshot vision input ───────────────────────────────────────────────
+    # Uploads are processed in memory and never stored permanently.
+    SCREENSHOT_MAX_UPLOAD_BYTES = _env_int('SCREENSHOT_MAX_UPLOAD_MB', 10,
+                                           minimum=1, maximum=20) * 1024 * 1024
+    # Longest edge sent to the model.  Settings screenshots are text heavy, so
+    # the cap is generous and small images are never upscaled.
+    SCREENSHOT_MAX_DIMENSION = _env_int('SCREENSHOT_MAX_DIMENSION', 2000,
+                                        minimum=800, maximum=4000)
+    SCREENSHOT_JPEG_QUALITY = _env_int('SCREENSHOT_JPEG_QUALITY', 88,
+                                       minimum=60, maximum=100)
+    SCREENSHOT_ALLOWED_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.webp')
+    SCREENSHOT_ALLOWED_MIME_TYPES = ('image/png', 'image/jpeg', 'image/jpg',
+                                     'image/webp', 'image/pjpeg')
+    SCREENSHOT_INVALID_MESSAGE = (
+        'Please upload a valid PNG, JPG, JPEG, or WebP image.'
+    )
+    SCREENSHOT_TOO_LARGE_MESSAGE = (
+        'That image is too large. Please upload an image under 10 MB.'
+    )
 
     @classmethod
     def has_openrouter(cls) -> bool:

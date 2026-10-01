@@ -241,6 +241,52 @@ _KNOWN_NON_TOOL_MODEL_HINTS = ("embedding", "moderation", "whisper", "tts", "rer
 #: Tool-support verdicts, cached per model for the process.
 _TOOL_SUPPORT_CACHE: Dict[str, Dict[str, Any]] = {}
 
+#: Raw model catalog entries, cached per model for the process.
+_MODEL_INFO_CACHE: Dict[str, Dict[str, Any]] = {}
+
+
+def fetch_model_info(
+    model: str,
+    api_key: Optional[str] = None,
+    timeout: Optional[int] = None,
+) -> Optional[Dict[str, Any]]:
+    """
+    Return the OpenRouter catalog entry for ``model``, or None when unknown.
+
+    Shared by the text and vision capability checks.  Only structural metadata
+    is cached — never credentials.
+    """
+    if model in _MODEL_INFO_CACHE:
+        return _MODEL_INFO_CACHE[model]
+    key = api_key or Config.OPENROUTER_API_KEY
+    if not key or not key.strip():
+        return None
+    headers = {
+        "Authorization": f"Bearer {key}",
+        "Content-Type": "application/json",
+    }
+    req = urllib.request.Request(_MODELS_URL, headers=headers, method="GET")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout or Config.OPENROUTER_TIMEOUT) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+    except Exception as exc:  # pylint: disable=broad-except
+        logger.debug("OpenRouter model catalog lookup failed: %s", type(exc).__name__)
+        return None
+    if not isinstance(payload, dict):
+        return None
+    data = payload.get("data")
+    entry: Optional[Dict[str, Any]] = None
+    if isinstance(data, dict):
+        entry = data if data.get("id") == model else None
+    elif isinstance(data, list):
+        for item in data:
+            if isinstance(item, dict) and item.get("id") == model:
+                entry = item
+                break
+    if entry is not None:
+        _MODEL_INFO_CACHE[model] = entry
+    return entry
+
 # The colon belongs in the server-tool TYPE, never in a function name.
 WEB_SEARCH_TYPE = "openrouter:web_search"
 WEB_FETCH_TYPE = "openrouter:web_fetch"
@@ -808,27 +854,11 @@ class OpenRouterProvider(AIProvider):
         """
         if not Config.OPENROUTER_VERIFY_TOOL_SUPPORT:
             return None
-        req = urllib.request.Request(
-            _MODELS_URL,
-            headers=self._build_headers(),
-            method="GET",
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
-                payload = json.loads(resp.read().decode("utf-8"))
-        except Exception as exc:  # pylint: disable=broad-except
-            logger.debug("OpenRouter model catalog lookup failed: %s", exc)
+        info = fetch_model_info(self.model_name, api_key=self._api_key,
+                                timeout=self.timeout)
+        if info is None:
             return None
-        if not isinstance(payload, dict):
-            return None
-        data = payload.get("data")
-        if isinstance(data, dict):
-            return data if data.get("id") == self.model_name else None
-        if isinstance(data, list):
-            for entry in data:
-                if isinstance(entry, dict) and entry.get("id") == self.model_name:
-                    return entry
-        return None
+        return info
 
     def _build_headers(self) -> Dict[str, str]:
         """Build request headers — API key is placed here and NEVER logged."""

@@ -258,7 +258,7 @@
 (function () {
   'use strict';
 
-  const aiBtn              = document.getElementById('aiOptimizeBtn');
+const aiBtn              = document.getElementById('aiOptimizeBtn');
   const currentSettingsEl  = document.getElementById('currentSettingsInput');
   const gameSelectEl       = document.getElementById('gameSelect');
   const priorityInputEl    = document.getElementById('priorityInput');
@@ -267,6 +267,29 @@
   const resultsContentEl   = document.getElementById('resultsContent');
   const placeholderEl      = document.getElementById('resultsPlaceholder');
   const loadingEl          = document.getElementById('optimizerLoading');
+
+  // ── Screenshot input (Phase 2) ───────────────────────────────────────────
+  const tabUploadEl        = document.getElementById('tabUploadShot');
+  const tabManualEl        = document.getElementById('tabManualSettings');
+  const shotInputEl        = document.getElementById('settingsScreenshotInput');
+  const shotDetectedEl     = document.getElementById('screenshotDetected');
+  const shotPreviewEl      = document.getElementById('screenshotPreview');
+  const shotRemoveBtn      = document.getElementById('removeScreenshotBtn');
+  const shotStatusEl       = document.getElementById('screenshotStatus');
+  const confirmModalEl     = document.getElementById('screenshotConfirmModal');
+  const confirmListEl      = document.getElementById('confirmSettingsList');
+  const confirmEditEl      = document.getElementById('confirmSettingsEdit');
+  const confirmOkBtn       = document.getElementById('confirmOptimizeBtn');
+  const confirmCancelBtn   = document.getElementById('confirmCancelBtn');
+  const confirmErrorEl     = document.getElementById('confirmError');
+
+  const SHOT_ALLOWED = ['image/png', 'image/jpeg', 'image/webp'];
+  const SHOT_MAX_BYTES = 10 * 1024 * 1024;
+
+  // Screenshot state lives only in this tab: the file is never uploaded
+  // automatically and never persisted beyond the page session.
+  let shotFile = null;
+  let shotReport = null;   // server-side extraction result
 
   if (!aiBtn) return;
 
@@ -301,8 +324,172 @@
                          border-radius:4px;padding:2px 8px;">⚙ Deterministic</span>`;
   }
 
+  // ── Screenshot: mode tabs ─────────────────────────────────────────────────
+  function setSettingsMode(mode) {
+    const panels = document.querySelectorAll('[data-panel]');
+    panels.forEach(p => {
+      p.style.display = p.getAttribute('data-panel') === mode ? '' : 'none';
+    });
+    [tabUploadEl, tabManualEl].forEach(btn => {
+      if (!btn) return;
+      const active = btn.getAttribute('data-mode') === mode;
+      btn.style.opacity = active ? '1' : '0.65';
+      btn.style.borderColor = active ? 'var(--blue)' : '';
+    });
+  }
+
+  if (tabUploadEl) tabUploadEl.addEventListener('click', () => setSettingsMode('upload'));
+  if (tabManualEl) tabManualEl.addEventListener('click', () => setSettingsMode('manual'));
+
+  // ── Screenshot: file selection ────────────────────────────────────────────
+  if (shotInputEl) {
+    setSettingsMode('manual');   // Phase 1 default: manual entry
+
+    shotInputEl.addEventListener('change', () => {
+      const file = shotInputEl.files && shotInputEl.files[0];
+      clearScreenshot();
+      if (!file) return;
+
+      // Client-side pre-check only; the server validates independently.
+      if (SHOT_ALLOWED.indexOf(file.type) === -1) {
+        setShotStatus('Please upload a valid PNG, JPG, JPEG, or WebP image.', true);
+        shotInputEl.value = '';
+        return;
+      }
+      if (file.size > SHOT_MAX_BYTES) {
+        setShotStatus('That image is too large. Please upload an image under 10 MB.', true);
+        shotInputEl.value = '';
+        return;
+      }
+
+      shotFile = file;
+      setShotStatus('Reading your screenshot…');
+
+      // Local preview only — never uploaded at this point.
+      const reader = new FileReader();
+      reader.onload = e => {
+        if (shotPreviewEl) shotPreviewEl.src = e.target.result;
+        if (shotDetectedEl) shotDetectedEl.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+
+      analyzeScreenshot();
+    });
+  }
+
+  if (shotRemoveBtn) shotRemoveBtn.addEventListener('click', () => {
+    clearScreenshot();
+    setShotStatus('');
+  });
+
+  function setShotStatus(msg, isError) {
+    if (!shotStatusEl) return;
+    shotStatusEl.textContent = msg || '';
+    shotStatusEl.style.color = isError ? 'var(--red)' : 'var(--text-dim)';
+  }
+
+  function clearScreenshot() {
+    shotFile = null;
+    shotReport = null;
+    if (shotInputEl) shotInputEl.value = '';
+    if (shotDetectedEl) shotDetectedEl.style.display = 'none';
+    if (shotPreviewEl) shotPreviewEl.removeAttribute('src');
+  }
+
+  // ── Screenshot: vision extraction ─────────────────────────────────────────
+  async function analyzeScreenshot() {
+    if (!shotFile) return;
+    const game = gameSelectEl ? gameSelectEl.value : '';
+    if (!game) {
+      setShotStatus('Select a game first, then upload the screenshot.', true);
+      return;
+    }
+
+    setShotStatus('Reading your screenshot…');
+    const form = new FormData();
+    form.append('game', game);
+    form.append('settings_screenshot', shotFile);
+    if (currentSettingsEl && currentSettingsEl.value.trim()) {
+      form.append('current_settings', currentSettingsEl.value.trim());
+    }
+
+    try {
+      const res = await fetch('/api/ai/screenshot-settings', {
+        method: 'POST',
+        body: form,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        clearScreenshot();
+        setShotStatus(data.error || 'Could not read that screenshot.', true);
+        return;
+      }
+      shotReport = data.screenshot || null;
+      if (shotPreviewEl && data.screenshot && data.screenshot.preview) {
+        shotPreviewEl.src = data.screenshot.preview;
+      }
+      if (shotDetectedEl) shotDetectedEl.style.display = 'block';
+      setShotStatus('');
+      openConfirmModal(shotReport);
+    } catch (err) {
+      clearScreenshot();
+      setShotStatus('Network error while reading the screenshot.', true);
+    }
+  }
+
+  // ── Screenshot: user confirmation ─────────────────────────────────────────
+  function settingsToText(report) {
+    if (!report || !report.settings) return '';
+    return report.settings
+      .filter(s => s.status !== 'unreadable' && s.value !== null && s.value !== '')
+      .map(s => `${s.canonical_name || s.name}: ${s.value}`)
+      .join('\n');
+  }
+
+  function openConfirmModal(report) {
+    if (!confirmModalEl || !report) return;
+    const rows = (report.settings || []).map(s => {
+      const status = s.status === 'unreadable'
+        ? '<span style="color:var(--yellow);">not readable</span>'
+        : esc(s.value || '—');
+      const badge = s.status === 'unrecognized'
+        ? '<span style="font-size:9px;color:var(--text-dim);">unrecognized</span>'
+        : '';
+      return `<div class="result-setting-row">
+          <div class="result-setting-name">${esc(s.name)} ${badge}</div>
+          <div class="result-setting-right">${status}</div>
+        </div>`;
+    }).join('');
+
+    if (confirmListEl) confirmListEl.innerHTML = rows ||
+      '<p style="color:var(--yellow);font-size:var(--text-xs);">No settings were read from this screenshot.</p>';
+    if (confirmEditEl) confirmEditEl.value = settingsToText(report);
+    if (confirmErrorEl) confirmErrorEl.textContent = '';
+    confirmModalEl.style.display = 'flex';
+  }
+
+  function closeConfirmModal() {
+    if (confirmModalEl) confirmModalEl.style.display = 'none';
+  }
+
+  if (confirmCancelBtn) confirmCancelBtn.addEventListener('click', () => {
+    if (confirmEditEl) currentSettingsEl.value = confirmEditEl.value;
+    if (currentSettingsEl) setSettingsMode('manual');
+    closeConfirmModal();
+  });
+
+  if (confirmOkBtn) confirmOkBtn.addEventListener('click', () => {
+    // The user's confirmation becomes the authoritative current settings.
+    if (confirmEditEl) currentSettingsEl.value = confirmEditEl.value;
+    closeConfirmModal();
+    setSettingsMode('manual');
+    runOptimize();
+  });
+
   // ── Button click ──────────────────────────────────────────────────────────
-  aiBtn.addEventListener('click', async () => {
+aiBtn.addEventListener('click', runOptimize);
+
+  function runOptimize() {
     const game = gameSelectEl ? gameSelectEl.value : '';
     if (!game) {
       if (gameSelectEl) {
@@ -323,43 +510,70 @@
     }
     if (resultsContentEl) resultsContentEl.style.display = 'none';
 
-    const payload = {
-      game:             game,
-      priority:         priorityInputEl ? priorityInputEl.value : 'balanced',
-      resolution:       resSelectEl ? resSelectEl.value : '1920x1080',
-      target_fps:       fpsRangeEl ? parseInt(fpsRangeEl.value, 10) : 60,
-      current_settings: currentSettingsEl ? currentSettingsEl.value.trim() : '',
-    };
+    const currentSettingsText = currentSettingsEl ? currentSettingsEl.value.trim() : '';
 
-    try {
-      const res = await fetch('/api/ai-optimize', {
+    // Screenshot not yet analyzed: send it with the request so the server
+    // reads it (screenshot first, manual text as supplementary context).
+    const useMultipart = !!shotFile && !shotReport;
+
+    let requestOptions;
+    if (useMultipart) {
+      const form = new FormData();
+      form.append('game', game);
+      form.append('priority', priorityInputEl ? priorityInputEl.value : 'balanced');
+      form.append('resolution', resSelectEl ? resSelectEl.value : '1920x1080');
+      form.append('target_fps', fpsRangeEl ? parseInt(fpsRangeEl.value, 10) : 60);
+      form.append('current_settings', currentSettingsText);
+      form.append('settings_screenshot', shotFile);
+      requestOptions = { method: 'POST', body: form };
+    } else {
+      // Phase 1 path, unchanged: JSON with the confirmed current settings.
+      requestOptions = {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(payload),
-      });
-
-      if (loadingEl) loadingEl.classList.remove('visible');
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        showAiError(err.error || 'AI optimization failed.');
-        return;
-      }
-
-      const data = await res.json();
-      if (data.success) {
-        const gameName = gameSelectEl
-          ? (gameSelectEl.options[gameSelectEl.selectedIndex] || {}).text || game
-          : game;
-        renderAiResults(data.result, data.hardware, gameName);
-      } else {
-        showAiError('Could not generate AI settings. Please try again.');
-      }
-    } catch (err) {
-      if (loadingEl) loadingEl.classList.remove('visible');
-      showAiError('Network error. Please check your connection.');
+        body:    JSON.stringify({
+          game:             game,
+          priority:         priorityInputEl ? priorityInputEl.value : 'balanced',
+          resolution:       resSelectEl ? resSelectEl.value : '1920x1080',
+          target_fps:       fpsRangeEl ? parseInt(fpsRangeEl.value, 10) : 60,
+          current_settings: currentSettingsText,
+        }),
+      };
     }
-  });
+
+    return (async () => {
+      try {
+        const res = await fetch('/api/ai-optimize', requestOptions);
+
+        if (loadingEl) loadingEl.classList.remove('visible');
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          showAiError(err.error || 'AI optimization failed.');
+          return;
+        }
+
+        const data = await res.json();
+        if (data.success) {
+          if (data.screenshot) {
+            shotReport = data.screenshot;
+            if (currentSettingsEl) {
+              currentSettingsEl.value = settingsToText(data.screenshot);
+            }
+          }
+          const gameName = gameSelectEl
+            ? (gameSelectEl.options[gameSelectEl.selectedIndex] || {}).text || game
+            : game;
+          renderAiResults(data.result, data.hardware, gameName, data.screenshot || null);
+        } else {
+          showAiError('Could not generate AI settings. Please try again.');
+        }
+      } catch (err) {
+        if (loadingEl) loadingEl.classList.remove('visible');
+        showAiError('Network error. Please check your connection.');
+      }
+    })();
+  }
 
   // ── Error display ─────────────────────────────────────────────────────────
   function showAiError(msg) {
@@ -383,7 +597,7 @@
   }
 
   // ── Main renderer ─────────────────────────────────────────────────────────
-  function renderAiResults(result, hardware, gameName) {
+  function renderAiResults(result, hardware, gameName, screenshot) {
     if (!resultsContentEl) return;
     resultsContentEl.style.display = 'block';
 
@@ -455,6 +669,9 @@
     // ── Warnings ──────────────────────────────────────────────────────────
     const warningsHtml = buildWarningsHtml(result.warnings || []);
 
+// ── Current settings detected from the screenshot ───────────────────────
+    const detectedHtml = buildDetectedHtml(screenshot || shotReport);
+
     resultsContentEl.innerHTML = `
       <div class="results-card">
         <div class="results-card-header">
@@ -474,6 +691,7 @@
 
         <div class="results-card-body">
           ${hwHtml}
+          ${detectedHtml}
           ${summaryHtml}
           ${fpsBadgeHtml}
           ${warningsHtml}
@@ -493,6 +711,43 @@
       </div>`;
 
     resultsContentEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── Detected settings (screenshot source) ─────────────────────────────────
+  function buildDetectedHtml(report) {
+    if (!report || !report.settings || !report.settings.length) return '';
+    const rows = report.settings
+      .filter(s => s.status !== 'unreadable' && s.value)
+      .map(s => `<div class="result-setting-row">
+          <div class="result-setting-name">${esc(s.canonical_name || s.name)}</div>
+          <div class="result-setting-right">
+            <span class="result-setting-val">${esc(s.value)}</span>
+            ${s.confidence && s.confidence !== 'high'
+              ? `<span class="result-setting-why">${esc(s.confidence)} confidence</span>` : ''}
+          </div>
+        </div>`).join('');
+
+    const unreadable = (report.unreadable || []).filter(Boolean);
+    const unreadableHtml = unreadable.length
+      ? `<div style="font-size:10px;color:var(--yellow);margin-top:var(--space-2);">
+           ${unreadable.length} setting(s) could not be read and were left unchanged.
+         </div>`
+      : '';
+
+    return `<details open style="margin-bottom:var(--space-5);">
+      <summary style="cursor:pointer;font-size:var(--text-sm);font-weight:700;
+                      color:var(--text);padding:var(--space-3) 0;user-select:none;">
+        📷 Current Settings <span style="font-weight:500;color:var(--text-dim);
+                                       font-size:var(--text-xs);">Detected from screenshot</span>
+      </summary>
+      <div style="margin-top:var(--space-2);">
+        <div style="font-size:10px;color:var(--text-dim);margin-bottom:var(--space-2);">
+          Source: your screenshot (not benchmark data)
+        </div>
+        ${rows}
+        ${unreadableHtml}
+      </div>
+    </details>`;
   }
 
   // ── Settings changes ──────────────────────────────────────────────────────

@@ -19,6 +19,9 @@ def create_app():
                 template_folder='templates',
                 static_folder='static')
     app.config.from_object(Config)
+    # Reject oversized screenshot uploads before they are buffered.  The vision
+    # pipeline also enforces the same cap on the decoded bytes.
+    app.config['MAX_CONTENT_LENGTH'] = int(Config.SCREENSHOT_MAX_UPLOAD_BYTES) + 1024 * 512
 
     # Register blueprints
     app.register_blueprint(home_bp)
@@ -34,6 +37,15 @@ def create_app():
     @app.errorhandler(500)
     def server_error(e):
         return render_template('500.html'), 500
+
+    @app.errorhandler(413)
+    def too_large(e):
+        """Oversized upload — never echo the request body."""
+        from flask import jsonify, request
+        message = Config.SCREENSHOT_TOO_LARGE_MESSAGE
+        if request.path.startswith('/api/'):
+            return jsonify({'error': message, 'code': 'too_large'}), 413
+        return render_template('500.html', error_message=message), 413
 
     # Inject global template variables
     @app.context_processor

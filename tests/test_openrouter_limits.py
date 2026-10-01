@@ -555,9 +555,9 @@ class TestSummarizeResponse:
 
 class TestToolSupportVerification:
     def test_tool_capable_model_is_accepted(self):
-        from services.ai.openrouter_provider import _TOOL_SUPPORT_CACHE
+        from services.ai.openrouter_provider import (_MODEL_INFO_CACHE, _TOOL_SUPPORT_CACHE)
 
-        _TOOL_SUPPORT_CACHE.clear()
+        _TOOL_SUPPORT_CACHE.clear(); _MODEL_INFO_CACHE.clear()
         catalog = {"data": {"id": "openai/gpt-5-mini",
                             "supported_parameters": ["tools", "max_tokens"]}}
         patcher, _ = _patch_urlopen(catalog)
@@ -567,9 +567,9 @@ class TestToolSupportVerification:
         assert verdict["source"] == "catalog"
 
     def test_model_without_tools_is_reported_cleanly(self):
-        from services.ai.openrouter_provider import _TOOL_SUPPORT_CACHE
+        from services.ai.openrouter_provider import (_MODEL_INFO_CACHE, _TOOL_SUPPORT_CACHE)
 
-        _TOOL_SUPPORT_CACHE.clear()
+        _TOOL_SUPPORT_CACHE.clear(); _MODEL_INFO_CACHE.clear()
         catalog = {"data": {"id": "some/model", "supported_parameters": ["max_tokens"]}}
         patcher, _ = _patch_urlopen(catalog)
         with patcher, mock.patch("config.Config.OPENROUTER_VERIFY_TOOL_SUPPORT", True):
@@ -579,9 +579,9 @@ class TestToolSupportVerification:
         assert "OPENROUTER_MODEL" in str(exc.value)
 
     def test_unsupported_model_does_not_send_the_tool_request(self):
-        from services.ai.openrouter_provider import _TOOL_SUPPORT_CACHE
+        from services.ai.openrouter_provider import (_MODEL_INFO_CACHE, _TOOL_SUPPORT_CACHE)
 
-        _TOOL_SUPPORT_CACHE.clear()
+        _TOOL_SUPPORT_CACHE.clear(); _MODEL_INFO_CACHE.clear()
         catalog = {"data": {"id": "some/model", "supported_parameters": []}}
         patcher, payloads = _patch_urlopen(
             catalog, _final_message('{"summary": "ok"}'))
@@ -592,9 +592,9 @@ class TestToolSupportVerification:
         assert all("messages" not in p for p in payloads)
 
     def test_verdict_is_cached(self):
-        from services.ai.openrouter_provider import _TOOL_SUPPORT_CACHE
+        from services.ai.openrouter_provider import (_MODEL_INFO_CACHE, _TOOL_SUPPORT_CACHE)
 
-        _TOOL_SUPPORT_CACHE.clear()
+        _TOOL_SUPPORT_CACHE.clear(); _MODEL_INFO_CACHE.clear()
         catalog = {"data": {"id": "openai/gpt-5-mini",
                             "supported_parameters": ["tools"]}}
         patcher, payloads = _patch_urlopen(
@@ -609,9 +609,9 @@ class TestToolSupportVerification:
     def test_unavailable_catalog_is_tolerated(self):
         import urllib.error
 
-        from services.ai.openrouter_provider import _TOOL_SUPPORT_CACHE
+        from services.ai.openrouter_provider import (_MODEL_INFO_CACHE, _TOOL_SUPPORT_CACHE)
 
-        _TOOL_SUPPORT_CACHE.clear()
+        _TOOL_SUPPORT_CACHE.clear(); _MODEL_INFO_CACHE.clear()
         with mock.patch("config.Config.OPENROUTER_VERIFY_TOOL_SUPPORT", True), \
              mock.patch("urllib.request.urlopen",
                         side_effect=urllib.error.URLError("offline")):
@@ -620,18 +620,18 @@ class TestToolSupportVerification:
         assert verdict["source"] == "catalog_unavailable"
 
     def test_obvious_non_tool_model_id_is_flagged(self):
-        from services.ai.openrouter_provider import _TOOL_SUPPORT_CACHE
+        from services.ai.openrouter_provider import (_MODEL_INFO_CACHE, _TOOL_SUPPORT_CACHE)
 
-        _TOOL_SUPPORT_CACHE.clear()
+        _TOOL_SUPPORT_CACHE.clear(); _MODEL_INFO_CACHE.clear()
         with mock.patch("config.Config.OPENROUTER_VERIFY_TOOL_SUPPORT", True):
             with pytest.raises(OpenRouterResponseError) as exc:
                 _provider(model="openai/text-embedding-3-small").verify_tool_support()
         assert exc.value.reason == REASON_NO_TOOL_SUPPORT
 
     def test_check_skipped_when_tools_disabled(self):
-        from services.ai.openrouter_provider import _TOOL_SUPPORT_CACHE
+        from services.ai.openrouter_provider import (_MODEL_INFO_CACHE, _TOOL_SUPPORT_CACHE)
 
-        _TOOL_SUPPORT_CACHE.clear()
+        _TOOL_SUPPORT_CACHE.clear(); _MODEL_INFO_CACHE.clear()
         patcher, payloads = _patch_urlopen(_final_message('{"summary": "ok"}'))
         with patcher, mock.patch("config.Config.OPENROUTER_VERIFY_TOOL_SUPPORT", True):
             _provider().complete("sys", "usr", tools=[])
@@ -640,9 +640,9 @@ class TestToolSupportVerification:
 
     def test_catalog_list_shape_is_used(self):
         """The live catalog answers with {"data": [ ... entries ... ]}."""
-        from services.ai.openrouter_provider import _TOOL_SUPPORT_CACHE
+        from services.ai.openrouter_provider import (_MODEL_INFO_CACHE, _TOOL_SUPPORT_CACHE)
 
-        _TOOL_SUPPORT_CACHE.clear()
+        _TOOL_SUPPORT_CACHE.clear(); _MODEL_INFO_CACHE.clear()
         catalog = {"data": [
             {"id": "other/model", "supported_parameters": ["tools"]},
             {"id": "openai/gpt-5-mini",
@@ -655,9 +655,9 @@ class TestToolSupportVerification:
         assert payloads[0]["__url__"].endswith("/api/v1/models")
 
     def test_model_absent_from_catalog_is_inconclusive(self):
-        from services.ai.openrouter_provider import _TOOL_SUPPORT_CACHE
+        from services.ai.openrouter_provider import (_MODEL_INFO_CACHE, _TOOL_SUPPORT_CACHE)
 
-        _TOOL_SUPPORT_CACHE.clear()
+        _TOOL_SUPPORT_CACHE.clear(); _MODEL_INFO_CACHE.clear()
         catalog = {"data": [{"id": "other/model", "supported_parameters": ["tools"]}]}
         patcher, _ = _patch_urlopen(catalog)
         with patcher, mock.patch("config.Config.OPENROUTER_VERIFY_TOOL_SUPPORT", True):

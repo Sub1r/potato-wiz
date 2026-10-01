@@ -126,21 +126,83 @@
                            border-radius:4px;padding:1px 6px;letter-spacing:.04em;">BETA</span>
             </div>
             <p style="font-size:var(--text-xs);color:var(--text-dim);margin-bottom:var(--space-3);">
-              Optionally paste your current in-game settings. The AI will research benchmarks
-              and explain every change.
+              Upload a screenshot of your in-game settings, or type them yourself.
+              Potato Wiz will research benchmarks and explain every change.
             </p>
 
+            <!-- Current Settings: choose one input method -->
             <div class="form-group">
-              <label for="currentSettingsInput" class="form-label">Current Settings
+              <label class="form-label">Current Settings
                 <span style="font-size:10px;color:var(--text-dim);font-weight:400;">(optional)</span>
               </label>
-              <textarea id="currentSettingsInput"
-                        class="form-select"
-                        rows="5"
-                        placeholder="e.g.&#10;Preset: High&#10;Shadows: High&#10;View Distance: High&#10;FSR: Off"
-                        style="resize:vertical;font-family:monospace;font-size:var(--text-xs);
-                               line-height:1.6;min-height:100px;"
-                        aria-label="Current in-game settings (optional)"></textarea>
+              <p style="font-size:var(--text-xs);color:var(--text-dim);margin-bottom:var(--space-2);">
+                Choose one:
+              </p>
+              <div style="display:flex;gap:6px;margin-bottom:var(--space-3);">
+                <button type="button" id="tabUploadShot"
+                        class="btn btn-secondary btn-sm settingsModeBtn"
+                        data-mode="upload" style="flex:1;justify-content:center;">
+                  Upload Screenshot
+                </button>
+                <button type="button" id="tabManualSettings"
+                        class="btn btn-secondary btn-sm settingsModeBtn"
+                        data-mode="manual" style="flex:1;justify-content:center;">
+                  Enter Manually
+                </button>
+              </div>
+
+              <!-- A. Screenshot upload -->
+              <div id="screenshotPanel" data-panel="upload" style="display:none;">
+                <label for="settingsScreenshotInput" class="form-label"
+                       style="display:block;margin-bottom:var(--space-2);">
+                  Upload Settings Screenshot
+                </label>
+                <input type="file" id="settingsScreenshotInput"
+                       accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
+                       aria-label="Upload settings screenshot (PNG, JPG, JPEG or WebP, max 10 MB)">
+                <p style="font-size:var(--text-xs);color:var(--text-dim);margin-top:var(--space-2);">
+                  Upload a screenshot of your in-game graphics settings. Potato Wiz will
+                  read the settings and use them to optimize your configuration.
+                </p>
+                <p style="font-size:10px;color:var(--text-dim);margin-top:var(--space-1);">
+                  PNG, JPG, JPEG or WebP · up to 10 MB · processed in memory and never stored
+                </p>
+
+                <div id="screenshotDetected" style="display:none;margin-top:var(--space-3);">
+                  <div style="display:flex;align-items:center;gap:6px;font-size:11px;
+                              font-weight:700;color:#22c55e;margin-bottom:var(--space-2);">
+                    <span aria-hidden="true">✓</span> Screenshot detected
+                  </div>
+                  <div id="screenshotPreviewWrap"
+                       style="border:1px solid var(--border);border-radius:var(--radius-md);
+                              overflow:hidden;background:var(--bg-secondary);">
+                    <img id="screenshotPreview" alt="Uploaded settings screenshot preview"
+                         style="width:100%;max-height:220px;object-fit:contain;display:block;">
+                  </div>
+                  <button type="button" id="removeScreenshotBtn"
+                          class="btn btn-secondary btn-sm"
+                          style="margin-top:var(--space-2);width:100%;justify-content:center;">
+                    Remove Screenshot
+                  </button>
+                </div>
+
+                <div id="screenshotStatus" aria-live="polite"
+                     style="font-size:var(--text-xs);margin-top:var(--space-2);"></div>
+              </div>
+
+              <!-- B. Manual entry (Phase 1, unchanged) -->
+              <div id="manualPanel" data-panel="manual">
+                <label for="currentSettingsInput" class="form-label">
+                  Enter Settings Manually
+                </label>
+                <textarea id="currentSettingsInput"
+                          class="form-select"
+                          rows="5"
+                          placeholder="e.g.&#10;Preset: High&#10;Shadows: High&#10;View Distance: High&#10;FSR: Off"
+                          style="resize:vertical;font-family:monospace;font-size:var(--text-xs);
+                                 line-height:1.6;min-height:100px;"
+                          aria-label="Current in-game settings (optional)"></textarea>
+              </div>
             </div>
 
             <button type="button" id="aiOptimizeBtn"
@@ -203,6 +265,44 @@
 
       </div>
 
+    </div>
+  </div>
+</div>
+
+<!-- ── Screenshot confirmation ─────────────────────────────── -->
+<div id="screenshotConfirmModal" style="display:none;position:fixed;inset:0;z-index:80;
+     background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:16px;">
+  <div role="dialog" aria-modal="true" aria-labelledby="confirmTitle"
+       style="background:var(--bg-primary);border:1px solid var(--border);
+              border-radius:var(--radius-lg);max-width:520px;width:100%;
+              max-height:85vh;overflow:auto;padding:var(--space-6);">
+    <h3 id="confirmTitle"
+        style="font-size:var(--text-lg);font-weight:700;margin-bottom:var(--space-2);">
+      Did we read your settings correctly?
+    </h3>
+    <p style="font-size:var(--text-xs);color:var(--text-dim);margin-bottom:var(--space-4);">
+      Detected from your screenshot. Correct anything that looks wrong before we research.
+    </p>
+    <div id="confirmSettingsList"
+         style="font-size:var(--text-sm);margin-bottom:var(--space-4);"></div>
+    <label for="confirmSettingsEdit" class="form-label"
+           style="display:block;margin-bottom:var(--space-2);">
+      Edit Settings
+    </label>
+    <textarea id="confirmSettingsEdit" class="form-select" rows="6"
+              style="resize:vertical;font-family:monospace;font-size:var(--text-xs);
+                     line-height:1.6;"
+              aria-label="Edit detected settings"></textarea>
+    <p id="confirmError" style="color:var(--red);font-size:var(--text-xs);margin-top:var(--space-2);"></p>
+    <div style="display:flex;gap:var(--space-2);margin-top:var(--space-4);">
+      <button type="button" id="confirmOptimizeBtn" class="btn btn-primary"
+              style="flex:1;justify-content:center;">
+        Looks Correct — Optimize
+      </button>
+      <button type="button" id="confirmCancelBtn" class="btn btn-secondary"
+              style="flex:1;justify-content:center;">
+        Edit Settings
+      </button>
     </div>
   </div>
 </div>
