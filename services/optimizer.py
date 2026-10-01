@@ -5,7 +5,7 @@ Generates recommended graphics settings based on hardware and user preferences.
 
 from typing import Dict, Any, List
 from models.models import HardwareSpecs, OptimizationResult
-from services.fps_estimator import estimate_fps, fps_to_status, fps_to_display
+from services.fps_estimator import estimate_fps_with_metadata, fps_to_status, fps_to_display
 
 
 # Preset definitions per tier
@@ -84,22 +84,97 @@ SETTING_EXPLANATIONS = {
 
 
 def _build_settings_list(settings: Dict, game_settings_detail: list) -> List[Dict]:
-    """Build detailed settings list with why explanations."""
-    if game_settings_detail:
-        return game_settings_detail
+    """
+    Build a settings list whose values always come from the *computed* settings
+    dict, never from the static game-level settings_detail.
+
+    If the game provides a settings_detail list, we use its ``why``
+    explanations for any setting that matches by name — but we never override
+    the *value* that was actually selected by the optimizer.
+
+    This prevents the UI from describing settings that differ from what the
+    optimizer actually chose.
+    """
+    # Build a lookup from setting name → why explanation from the game data
+    game_why: Dict[str, str] = {}
+    for entry in (game_settings_detail or []):
+        if isinstance(entry, dict) and "name" in entry and "why" in entry:
+            game_why[entry["name"].strip().lower()] = entry["why"]
+
+    def _why(setting_name: str, fallback: str) -> str:
+        return game_why.get(setting_name.strip().lower(), fallback)
 
     return [
-        {'name': 'Graphics Preset', 'value': settings['preset'],       'why': 'Recommended preset for your hardware tier.'},
-        {'name': 'Resolution',      'value': settings['resolution'].replace('x', '×'), 'why': 'Optimal resolution for performance/quality balance.'},
-        {'name': 'FSR / Upscaling', 'value': settings['upscaling'],    'why': SETTING_EXPLANATIONS['upscaling'].get(settings['upscaling'], 'Upscaling setting.')},
-        {'name': 'View Distance',   'value': settings['view_distance'], 'why': SETTING_EXPLANATIONS['view_distance'].get(settings['view_distance'], '')},
-        {'name': 'Shadows',         'value': settings['shadows'],       'why': SETTING_EXPLANATIONS['shadows'].get(settings['shadows'], '')},
-        {'name': 'Textures',        'value': settings['textures'],      'why': SETTING_EXPLANATIONS['textures'].get(settings['textures'], '')},
-        {'name': 'Effects',         'value': settings['effects'],       'why': SETTING_EXPLANATIONS['effects'].get(settings['effects'], '')},
-        {'name': 'Anti-Aliasing',   'value': settings['aa'],            'why': 'Smooths jagged edges in the image.'},
-        {'name': 'Motion Blur',     'value': 'Off',                     'why': 'Disabling motion blur improves clarity and perceived sharpness.'},
-        {'name': 'V-Sync',          'value': 'Off',                     'why': 'Disabled V-Sync reduces input latency.'},
-        {'name': 'FPS Limit',       'value': str(settings['fps_limit']) if settings['fps_limit'] else 'Unlimited', 'why': 'Caps FPS to stabilize frame pacing.'},
+        {
+            "name": "Graphics Preset",
+            "value": settings["preset"],
+            "why": _why("graphics preset", "Recommended preset for your hardware tier."),
+        },
+        {
+            "name": "Resolution",
+            "value": settings["resolution"].replace("x", "×"),
+            "why": _why("resolution", "Optimal resolution for performance/quality balance."),
+        },
+        {
+            "name": "FSR / Upscaling",
+            "value": settings["upscaling"],
+            "why": _why(
+                "fsr / upscaling",
+                SETTING_EXPLANATIONS["upscaling"].get(settings["upscaling"], "Upscaling setting."),
+            ),
+        },
+        {
+            "name": "View Distance",
+            "value": settings["view_distance"],
+            "why": _why(
+                "view distance",
+                SETTING_EXPLANATIONS["view_distance"].get(settings["view_distance"], ""),
+            ),
+        },
+        {
+            "name": "Shadows",
+            "value": settings["shadows"],
+            "why": _why(
+                "shadows",
+                SETTING_EXPLANATIONS["shadows"].get(settings["shadows"], ""),
+            ),
+        },
+        {
+            "name": "Textures",
+            "value": settings["textures"],
+            "why": _why(
+                "textures",
+                SETTING_EXPLANATIONS["textures"].get(settings["textures"], ""),
+            ),
+        },
+        {
+            "name": "Effects",
+            "value": settings["effects"],
+            "why": _why(
+                "effects",
+                SETTING_EXPLANATIONS["effects"].get(settings["effects"], ""),
+            ),
+        },
+        {
+            "name": "Anti-Aliasing",
+            "value": settings["aa"],
+            "why": _why("anti-aliasing", "Smooths jagged edges in the image."),
+        },
+        {
+            "name": "Motion Blur",
+            "value": "Off",
+            "why": _why("motion blur", "Disabling motion blur improves clarity and perceived sharpness."),
+        },
+        {
+            "name": "V-Sync",
+            "value": "Off",
+            "why": _why("v-sync", "Disabled V-Sync reduces input latency."),
+        },
+        {
+            "name": "FPS Limit",
+            "value": str(settings["fps_limit"]) if settings["fps_limit"] else "Unlimited",
+            "why": _why("fps limit", "Caps FPS to stabilize frame pacing."),
+        },
     ]
 
 
@@ -135,14 +210,16 @@ def generate_recommendations(
         settings['shadows'] = 'Low'
         settings['effects'] = 'Low'
 
-    # Estimate FPS
-    fps_low, fps_high = estimate_fps(
+    # Estimate FPS — uses benchmark data when available, falls back to math
+    fps_meta = estimate_fps_with_metadata(
         hardware,
         game.get('slug', ''),
         preset=settings['preset'],
         resolution=settings['resolution'],
         upscaling_mode=settings['upscaling'],
     )
+    fps_low = fps_meta['fps_low']
+    fps_high = fps_meta['fps_high']
 
     status = fps_to_status(fps_low, fps_high)
     fps_display = fps_to_display(fps_low, fps_high)

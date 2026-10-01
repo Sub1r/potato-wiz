@@ -1,10 +1,23 @@
 """
 fps_estimator.py
 Estimates expected FPS for a given game and hardware configuration.
+
+Two public paths are provided:
+
+estimate_fps()               — original API, returns (fps_low, fps_high).
+                               Existing callers are unaffected.
+
+estimate_fps_with_metadata() — new API, returns a rich dict with
+                               source_type, confidence, match_type, etc.
+                               Uses benchmark data when available;
+                               falls back to the mathematical estimator.
 """
 
-from typing import Dict, Any, Tuple
-from models.models import HardwareSpecs
+import logging
+from typing import Dict, Any, Optional, Tuple
+from models.models import HardwareSpecs, BenchmarkMatch, MATCH_TYPE_NONE
+
+logger = logging.getLogger(__name__)
 
 
 # GPU performance multipliers relative to GTX 1080 baseline (1.0)
@@ -150,3 +163,114 @@ def fps_to_status(fps_low: int, fps_high: int) -> str:
 
 def fps_to_display(fps_low: int, fps_high: int) -> str:
     return f"{fps_low}–{fps_high}"
+
+
+
+def _fps_range_from_benchmark(match: BenchmarkMatch) -> Tuple[int, int]:
+    """
+    Derive a (fps_low, fps_high) range from a BenchmarkMatch.
+
+    avg_fps is used as the mid-point.  1% low is used for the floor when
+    present; otherwise we apply a ±12 % spread (same as the math estimator).
+    """
+    avg = match.avg_fps  # already validated as int > 0 by benchmark_service
+    if match.one_percent_low is not None:
+        fps_low = max(1, match.one_percent_low)
+        # high side: symmetric distance from avg above the 1% low
+        spread = avg - fps_low
+        fps_high = avg + spread
+    else:
+        fps_low = max(1, int(avg * 0.88))
+        fps_high = int(avg * 1.12)
+    return fps_low, fps_high
+
+
+def estimate_fps_with_metadata(
+    hardware: HardwareSpecs,
+    game_slug: str,
+    preset: str = "High",
+    resolution: str = "1920x1080",
+    upscaling_mode: str = "Off",
+) -> Dict[str, Any]:
+    """
+    Return an FPS estimate with source/confidence metadata.
+
+    Benchmark path
+    --------------
+    If a matching benchmark record exists in data/benchmarks/<game_slug>.json,
+    use it and report source_type="benchmark".
+
+    Fallback path
+    -------------
+    If no benchmark is found, call the existing mathematical estimator and
+    report source_type="estimated".
+
+    Return shape
+    ------------
+    {
+        "fps_low":      int,
+        "fps_high":     int,
+        "source_type":  "benchmark" | "estimated",
+        "confidence":   "high" | "medium" | "low" | "fixture" | "",
+        "match_type":   "exact" | "gpu_match" | "approximate" | "none",
+        "source":       str,       # "" when not a real benchmark
+        "source_url":   str,       # "" when not a real benchmark
+        "reason":       str,       # human-readable explanation
+    }
+    """
+    # Import here to keep module-level imports clean and avoid circular refs
+    from services.benchmark_service import find_benchmark  # noqa: PLC0415
+
+    try:
+        match: BenchmarkMatch = find_benchmark(
+            game_slug=game_slug,
+            gpu=hardware.gpu,
+            resolution=resolution,
+            preset=preset,
+            cpu=hardware.cpu,
+            upscaling=upscaling_mode,
+        )
+    except Exception as exc:  # pylint: disable=broad-except
+        logger.warning("Benchmark lookup failed for '%s': %s — using estimator", game_slug, exc)
+        match = BenchmarkMatch(found=False, match_type=MATCH_TYPE_NONE)
+
+    if match.found:
+        fps_low, fps_high = _fps_range_from_benchmark(match)
+        logger.debug(
+            "FPS: %s | benchmark %s | avg=%s 1%%low=%s → range %d–%d",
+            game_slug, match.match_type, match.avg_fps, match.one_percent_low,
+            fps_low, fps_high,
+        )
+        return {
+            "fps_low": fps_low,
+            "fps_high": fps_high,
+            "source_type": "benchmark",
+            "confidence": match.confidence or "medium",
+            "match_type": match.match_type,
+            "source": match.source,
+            "source_url": match.source_url,
+            "reason": match.reason,
+        }
+
+    # ── Fallback: mathematical estimator ────────────────────────────────────
+    fps_low, fps_high = estimate_fps(
+        hardware=hardware,
+        game_slug=game_slug,
+        preset=preset,
+        resolution=resolution,
+        upscaling_mode=upscaling_mode,
+    )
+    logger.debug(
+        "FPS: %s | no benchmark (%s) | estimator → %d–%d",
+        game_slug, match.reason, fps_low, fps_high,
+    )
+    return {
+        "fps_low": fps_low,
+        "fps_high": fps_high,
+        "source_type": "estimated",
+        "confidence": "low",
+        "match_type": MATCH_TYPE_NONE,
+        "source": "",
+        "source_url": "",
+        "reason": match.reason or "Mathematical estimate (no benchmark data available).",
+    }

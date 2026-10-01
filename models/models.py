@@ -1,6 +1,47 @@
 from dataclasses import dataclass, field
 from typing import Optional, List, Dict, Any
 
+# ---------------------------------------------------------------------------
+# Benchmark matching result
+# ---------------------------------------------------------------------------
+
+# Valid match type literals
+MATCH_TYPE_EXACT = "exact"          # GPU + CPU + resolution + preset all match
+MATCH_TYPE_GPU = "gpu_match"        # GPU + resolution + preset match (CPU differs/absent)
+MATCH_TYPE_APPROXIMATE = "approximate"  # GPU matches, some other field differs
+MATCH_TYPE_NONE = "none"            # No usable benchmark found
+
+
+@dataclass
+class BenchmarkMatch:
+    """
+    Result returned by benchmark_service.find_benchmark().
+
+    When ``found`` is False the FPS fields are None and the caller
+    should fall back to the mathematical estimator.
+    """
+    found: bool = False
+    match_type: str = MATCH_TYPE_NONE   # one of the MATCH_TYPE_* constants
+    avg_fps: Optional[int] = None
+    one_percent_low: Optional[int] = None
+    source: str = ""
+    source_url: str = ""
+    confidence: str = ""               # "high" | "medium" | "low" | "fixture"
+    record: Optional[Dict[str, Any]] = None  # the raw benchmark record
+    reason: str = ""                   # human-readable explanation of the match
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "found": self.found,
+            "match_type": self.match_type,
+            "avg_fps": self.avg_fps,
+            "one_percent_low": self.one_percent_low,
+            "source": self.source,
+            "source_url": self.source_url,
+            "confidence": self.confidence,
+            "reason": self.reason,
+        }
+
 
 @dataclass
 class HardwareSpecs:
