@@ -8,6 +8,28 @@ except ImportError:
     pass  # dotenv not installed — rely on real environment variables
 
 
+def _env_int(name, default, minimum=None, maximum=None):
+    """Read an integer environment variable with a safe fallback.
+
+    An unparseable value falls back to ``default`` instead of crashing at
+    import time, and the result is clamped to ``minimum``/``maximum`` when
+    those bounds are supplied.
+    """
+    raw = os.environ.get(name)
+    if raw is None or str(raw).strip() == '':
+        value = default
+    else:
+        try:
+            value = int(str(raw).strip())
+        except (TypeError, ValueError):
+            value = default
+    if minimum is not None and value < minimum:
+        value = minimum
+    if maximum is not None and value > maximum:
+        value = maximum
+    return value
+
+
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'potato-wiz-dev-key-2024')
     DEBUG = os.environ.get('DEBUG', 'True') == 'True'
@@ -42,6 +64,34 @@ class Config:
     OPENROUTER_SITE_URL = os.environ.get('OPENROUTER_SITE_URL', 'http://localhost:5000')
     OPENROUTER_SITE_NAME = os.environ.get('OPENROUTER_SITE_NAME', 'Potato Wiz')
     OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
+
+    # Cost controls.  OpenRouter rejects requests whose max_tokens exceeds the
+    # account credit balance (HTTP 402), so the provider sends a small explicit
+    # budget instead of inheriting the model's full 65536-token output window.
+    # Bounds are enforced in code as well as here, so a large environment value
+    # can never request more than OPENROUTER_MAX_TOKENS_LIMIT.
+    OPENROUTER_MAX_TOKENS = _env_int('OPENROUTER_MAX_TOKENS', 2048, minimum=512, maximum=4096)
+    OPENROUTER_MAX_TOKENS_FLOOR = 512
+    OPENROUTER_MAX_TOKENS_CEILING = 4096
+
+    # Web-research budget (per search / per optimization request).
+    OPENROUTER_MAX_SEARCH_RESULTS = _env_int('OPENROUTER_MAX_SEARCH_RESULTS', 3, minimum=1, maximum=10)
+    OPENROUTER_MAX_TOTAL_RESULTS = _env_int('OPENROUTER_MAX_TOTAL_RESULTS', 6, minimum=1, maximum=40)
+    OPENROUTER_MAX_SEARCH_CALLS = _env_int('OPENROUTER_MAX_SEARCH_CALLS', 2, minimum=1, maximum=8)
+    OPENROUTER_MAX_FETCH_PAGES = _env_int('OPENROUTER_MAX_FETCH_PAGES', 1, minimum=0, maximum=4)
+    # Top-level server-tool call budget sent to OpenRouter (OpenRouter stops
+    # executing server tools after this many calls).
+    OPENROUTER_MAX_TOOL_CALLS = _env_int('OPENROUTER_MAX_TOOL_CALLS', 4, minimum=1, maximum=8)
+    # openrouter:web_fetch is held back while the server-tool configuration is
+    # validated; the first live request carries web_search only.
+    OPENROUTER_WEB_FETCH_ENABLED = os.environ.get('OPENROUTER_WEB_FETCH_ENABLED', 'False') == 'True'
+    # Consult the OpenRouter model catalog to confirm the configured model
+    # supports tool calling before sending server tools.
+    OPENROUTER_VERIFY_TOOL_SUPPORT = os.environ.get('OPENROUTER_VERIFY_TOOL_SUPPORT', 'True') == 'True'
+    # Optional: 'low' | 'medium' | 'high'. Reasoning models can spend the whole
+    # max_tokens budget on reasoning and return no/truncated content, so a low
+    # effort keeps the answer inside the budget. Empty = not sent.
+    OPENROUTER_REASONING_EFFORT = os.environ.get('OPENROUTER_REASONING_EFFORT', '').strip()
 
     @classmethod
     def has_openrouter(cls) -> bool:

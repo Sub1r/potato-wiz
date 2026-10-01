@@ -448,18 +448,64 @@ class TestAiNeverOverridesFps:
 # ---------------------------------------------------------------------------
 
 class TestOpenRouterUnavailable:
-    """Test 9: OpenRouter unavailable falls back gracefully."""
+    """Test 9: OpenRouter unavailable falls back gracefully.
 
-    def test_no_api_key_is_not_available(self):
+    Also covers the sentinel distinction between api_key=None (not provided,
+    load from env) and api_key="" / api_key="   " (explicitly empty, do NOT
+    fall back to env).
+    """
+
+    # ── Availability logic ────────────────────────────────────────────────────
+
+    def test_explicit_empty_string_is_not_available(self):
+        """api_key="" must NOT fall back to env and must return is_available=False."""
         from services.ai.openrouter_provider import OpenRouterProvider
-        p = OpenRouterProvider(api_key="")
+        # Patch env to a real-looking key so we can prove it is NOT used
+        with mock.patch("config.Config.OPENROUTER_API_KEY", "sk-or-env-key-99"):
+            p = OpenRouterProvider(api_key="")
         assert p.is_available() is False
 
-    def test_openrouter_raises_provider_error_on_missing_key(self):
+    # Alias kept so the original test name still exists
+    test_no_api_key_is_not_available = test_explicit_empty_string_is_not_available
+
+    def test_whitespace_only_key_is_not_available(self):
+        """api_key='   ' (whitespace only) must be treated as absent."""
+        from services.ai.openrouter_provider import OpenRouterProvider
+        with mock.patch("config.Config.OPENROUTER_API_KEY", "sk-or-env-key-99"):
+            p = OpenRouterProvider(api_key="   ")
+        assert p.is_available() is False
+
+    def test_no_argument_loads_from_env(self):
+        """api_key=None (default) must load from Config.OPENROUTER_API_KEY."""
+        from services.ai.openrouter_provider import OpenRouterProvider
+        with mock.patch("config.Config.OPENROUTER_API_KEY", "sk-or-real-env-key"):
+            p = OpenRouterProvider()   # no api_key argument
+        assert p.is_available() is True
+
+    def test_no_argument_no_env_is_not_available(self):
+        """api_key=None with empty env key → not available."""
+        from services.ai.openrouter_provider import OpenRouterProvider
+        with mock.patch("config.Config.OPENROUTER_API_KEY", ""):
+            p = OpenRouterProvider()
+        assert p.is_available() is False
+
+    def test_explicit_valid_key_is_available(self):
+        """api_key='real-key' must make the provider available regardless of env."""
+        from services.ai.openrouter_provider import OpenRouterProvider
+        with mock.patch("config.Config.OPENROUTER_API_KEY", ""):
+            p = OpenRouterProvider(api_key="sk-or-explicit-real-key")
+        assert p.is_available() is True
+
+    # ── Error raising ─────────────────────────────────────────────────────────
+
+    def test_openrouter_raises_provider_error_on_empty_key(self):
+        """complete() raises AIProviderError when key is explicitly empty."""
         from services.ai.openrouter_provider import OpenRouterProvider
         p = OpenRouterProvider(api_key="")
         with pytest.raises(AIProviderError):
             p.complete("sys", "usr")
+
+    # ── Full pipeline fallback ────────────────────────────────────────────────
 
     def test_optimize_game_falls_back_when_openrouter_fails(self):
         game = _palworld()
