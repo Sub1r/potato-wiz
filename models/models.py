@@ -98,6 +98,144 @@ class HardwareSpecs:
         return 'unknown'
 
 
+# ---------------------------------------------------------------------------
+# AI Optimizer evidence and result models
+# ---------------------------------------------------------------------------
+
+# Evidence type constants — these MUST be used consistently so the UI can
+# display the right label and the caller can distinguish evidence tiers.
+EVIDENCE_MEASURED_BENCHMARK = "MEASURED_BENCHMARK"
+EVIDENCE_PUBLISHED_BENCHMARK = "PUBLISHED_BENCHMARK"
+EVIDENCE_COMMUNITY_REPORT = "COMMUNITY_REPORT"
+EVIDENCE_OFFICIAL_INFO = "OFFICIAL_INFORMATION"
+EVIDENCE_GUIDE = "GUIDE"
+EVIDENCE_AI_INFERENCE = "AI_INFERENCE"
+EVIDENCE_FALLBACK_ESTIMATE = "FALLBACK_ESTIMATE"
+
+# AI provider identifiers
+AI_PROVIDER_OPENROUTER = "openrouter"
+AI_PROVIDER_OLLAMA = "ollama"
+AI_PROVIDER_NONE = "none"           # deterministic fallback only
+
+# AI result status
+AI_STATUS_OK = "ok"
+AI_STATUS_FALLBACK = "fallback"     # deterministic optimizer used
+AI_STATUS_ERROR = "error"
+
+
+@dataclass
+class EvidenceItem:
+    """
+    A single piece of evidence collected during AI research.
+
+    The ``type`` field must be one of the EVIDENCE_* constants above so the
+    UI and callers can reliably distinguish measured data from inference.
+    """
+    title: str = ""
+    url: str = ""
+    domain: str = ""
+    evidence_type: str = EVIDENCE_AI_INFERENCE
+    claim: str = ""                  # specific factual claim drawn from this source
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "title": self.title,
+            "url": self.url,
+            "domain": self.domain,
+            "type": self.evidence_type,
+            "claim": self.claim,
+        }
+
+
+@dataclass
+class AIRecommendedSettings:
+    """
+    Structured settings block returned by the AI.
+
+    All fields have sensible defaults so partial AI output does not crash
+    the validator.  The validator will fill gaps from the deterministic result.
+    """
+    graphics_preset: str = ""
+    resolution: str = ""
+    upscaling: str = ""
+    view_distance: str = ""
+    shadows: str = ""
+    effects: str = ""
+    textures: str = ""
+    anti_aliasing: str = ""
+    motion_blur: str = "Off"
+    vsync: str = "Off"
+    fps_limit: int = 0
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "graphics_preset": self.graphics_preset,
+            "resolution": self.resolution,
+            "upscaling": self.upscaling,
+            "view_distance": self.view_distance,
+            "shadows": self.shadows,
+            "effects": self.effects,
+            "textures": self.textures,
+            "anti_aliasing": self.anti_aliasing,
+            "motion_blur": self.motion_blur,
+            "vsync": self.vsync,
+            "fps_limit": self.fps_limit,
+        }
+
+
+@dataclass
+class AIOptimizationResult:
+    """
+    Full structured result from the AI optimizer.
+
+    ``status`` is one of AI_STATUS_* constants.
+    ``fps_source`` documents where the FPS number came from — this is critical
+    to ensure the AI never presents an estimate as a measured value.
+    """
+    # Core
+    status: str = AI_STATUS_OK
+    provider: str = AI_PROVIDER_NONE
+    model: str = ""
+
+    # Content
+    summary: str = ""
+    recommended_settings: Optional['AIRecommendedSettings'] = None
+    changes: List[Dict[str, str]] = field(default_factory=list)
+
+    # FPS — source MUST be documented
+    estimated_fps: str = ""
+    fps_source: str = EVIDENCE_FALLBACK_ESTIMATE   # one of EVIDENCE_* constants
+
+    # Metadata
+    confidence: str = "low"
+    reasoning: str = ""
+    evidence: List['EvidenceItem'] = field(default_factory=list)
+    warnings: List[str] = field(default_factory=list)
+
+    # Fallback deterministic result (always populated for safety)
+    fallback_result: Optional['OptimizationResult'] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "status": self.status,
+            "provider": self.provider,
+            "model": self.model,
+            "summary": self.summary,
+            "recommended_settings": (
+                self.recommended_settings.to_dict()
+                if self.recommended_settings else {}
+            ),
+            "changes": self.changes,
+            "estimated_fps": self.estimated_fps,
+            "fps_source": self.fps_source,
+            "confidence": self.confidence,
+            "reasoning": self.reasoning,
+            "evidence": [e.to_dict() for e in self.evidence],
+            "warnings": self.warnings,
+            "fallback": self.fallback_result.to_dict() if self.fallback_result else {},
+        }
+
+
 @dataclass
 class OptimizationResult:
     preset: str = "Medium"

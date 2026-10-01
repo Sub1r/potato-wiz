@@ -46,6 +46,54 @@ def api_optimize():
         return jsonify({'error': 'Optimization failed', 'detail': str(e)}), 500
 
 
+@optimizer_bp.route('/api/ai-optimize', methods=['POST'])
+def api_ai_optimize():
+    """
+    AI-powered optimization endpoint.
+
+    Accepts:
+        game          — game slug (required)
+        priority      — "fps" | "balanced" | "quality"
+        resolution    — e.g. "1920x1080"
+        target_fps    — integer
+        current_settings — optional free-text of current in-game settings
+
+    Returns a JSON AIOptimizationResult.
+    Always succeeds (falls back to deterministic optimizer if AI unavailable).
+    """
+    from services.ai_optimizer import optimize_game
+
+    data = request.get_json() or {}
+    game_slug = data.get('game', '')
+    priority = data.get('priority', 'balanced')
+    resolution = data.get('resolution', '1920x1080')
+    target_fps = int(data.get('target_fps', 60))
+    current_settings = str(data.get('current_settings', ''))
+
+    game = get_game_by_slug(game_slug)
+    if not game:
+        return jsonify({'error': 'Game not found'}), 404
+
+    try:
+        hardware = detect_hardware()
+        result = optimize_game(
+            hardware=hardware,
+            game=game,
+            target_fps=target_fps,
+            priority=priority,
+            resolution=resolution,
+            current_settings=current_settings,
+        )
+        return jsonify({
+            'success': True,
+            'result': result.to_dict(),
+            'hardware': hardware.to_dict(),
+        })
+    except Exception as e:
+        # Belt-and-suspenders: optimize_game() should never raise, but just in case
+        return jsonify({'error': 'AI optimization failed', 'detail': str(e)}), 500
+
+
 @optimizer_bp.route('/guides')
 def guides():
     return render_template('guides.html')
