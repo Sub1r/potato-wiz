@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Games Library — Potato Wiz{% endblock %}
+{% block meta_description %}Browse and search optimized PC graphics settings for all popular games. Find the best settings for your hardware.{% endblock %}
+
+{% block content %}
+
+<!-- Page Hero -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="pill" style="margin-bottom:var(--space-4);">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/>
+        <circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>
+      </svg>
+      Game Library
+    </div>
+    <h1>Find Optimized Settings</h1>
+    <p>Browse {{ games|length }} games. Find the perfect settings for your hardware.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="container">
+
+    <!-- ── Filters ──────────────────────────────────────── -->
+    <div style="display:flex;flex-wrap:wrap;gap:var(--space-4);margin-bottom:var(--space-8);align-items:center;"
+         role="search" aria-label="Filter games">
+
+      <!-- Search -->
+      <div style="position:relative;flex:1;min-width:220px;">
+        <input
+          type="text"
+          id="gamesSearch"
+          class="form-input"
+          style="padding-left:40px;"
+          placeholder="Search games…"
+          value="{{ query }}"
+          autocomplete="off"
+          aria-label="Search games"
+        >
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2"
+             style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text-dim);"
+             aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </div>
+
+      <!-- Genre filter -->
+      <select id="genreFilter" class="form-select" style="width:auto;min-width:160px;"
+              aria-label="Filter by genre">
+        <option value="">All Genres</option>
+        {% for genre in genres %}
+        <option value="{{ genre }}" {% if genre_filter == genre %}selected{% endif %}>
+          {{ genre }}
+        </option>
+        {% endfor %}
+      </select>
+
+      <!-- Sort -->
+      <select id="sortFilter" class="form-select" style="width:auto;min-width:160px;"
+              aria-label="Sort games">
+        <option value="popular">Most Popular</option>
+        <option value="name">Name (A–Z)</option>
+        <option value="year">Release Year</option>
+      </select>
+
+      <!-- Result count -->
+      <p class="text-muted" style="font-size:var(--text-sm);white-space:nowrap;"
+         id="gamesCount" aria-live="polite">
+        {{ games|length }} game{{ 's' if games|length != 1 else '' }}
+      </p>
+    </div>
+
+    <!-- ── Game Library Grid ──────────────────────────── -->
+    <div class="library-grid" id="gamesGrid" role="list" aria-label="Games list">
+      {% for game in games %}
+      <a href="{{ url_for('games.game_detail', slug=game.slug) }}"
+         class="lib-card"
+         role="listitem"
+         aria-label="{{ game.name }}, {{ game.genre|join(', ') }}"
+         data-name="{{ game.name|lower }}"
+         data-genre="{{ game.genre|join(' ')|lower }}"
+         data-popular="{{ game.popular|lower }}"
+         data-year="{{ game.release_year }}">
+
+        <!-- Artwork -->
+        <div class="lib-card-art">
+          <img
+            src="{{ url_for('static', filename='images/games/' + game.image) }}"
+            alt="{{ game.name }}"
+            class="lib-card-img"
+            loading="lazy"
+            onerror="this.style.display='none'"
+          >
+          <div class="lib-card-placeholder"
+               style="background:{{ game.image_placeholder }};" aria-hidden="true">🎮</div>
+
+          <!-- Overlay with genres -->
+          <div class="lib-card-overlay">
+            <div style="display:flex;gap:4px;flex-wrap:wrap;">
+              {% for genre in game.genre[:2] %}
+              <span class="genre-tag" style="font-size:10px;padding:2px 7px;">{{ genre }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Card body -->
+        <div class="lib-card-body">
+          <div class="lib-card-name">{{ game.name }}</div>
+
+          <div class="lib-card-meta">
+            <div class="lib-card-row">
+              <span class="lib-card-label">Preset</span>
+              <span class="lib-card-val">{{ game.recommended_settings.preset }}</span>
+            </div>
+            <div class="lib-card-row">
+              <span class="lib-card-label">Expected FPS</span>
+              <span class="lib-card-fps">~{{ game.recommended_settings.estimated_fps }}</span>
+            </div>
+            <div class="lib-card-row">
+              <span class="lib-card-label">Status</span>
+              <span class="badge badge-{{ 'green' if game.recommended_settings.status == 'Playable' or game.recommended_settings.status == 'Excellent' else 'yellow' }}"
+                    style="font-size:10px;padding:2px 7px;">
+                {{ game.recommended_settings.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </a>
+      {% endfor %}
+
+      <!-- Empty state -->
+      {% if not games %}
+      <div class="empty-state" style="grid-column:1/-1;" role="status">
+        <div class="empty-state-icon" aria-hidden="true">🔍</div>
+        <h3>No games found</h3>
+        <p>No games matched your search. Try a different term or clear the filters.</p>
+        <a href="{{ url_for('games.games_library') }}" class="btn btn-secondary"
+           style="margin-top:var(--space-4);">Clear Filters</a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Client-side empty state -->
+    <div class="empty-state" id="noResults" style="display:none;" role="status" aria-live="polite">
+      <div class="empty-state-icon" aria-hidden="true">🔍</div>
+      <h3>No games matched</h3>
+      <p>Try a different search term or clear the genre filter.</p>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Client-side filtering for fast UX
+  const searchInput = document.getElementById('gamesSearch');
+  const genreFilter = document.getElementById('genreFilter');
+  const sortFilter  = document.getElementById('sortFilter');
+  const grid        = document.getElementById('gamesGrid');
+  const noResults   = document.getElementById('noResults');
+  const countEl     = document.getElementById('gamesCount');
+
+  function getCards() {
+    return Array.from(grid.querySelectorAll('.lib-card'));
+  }
+
+  function filterAndSort() {
+    const q = searchInput.value.toLowerCase().trim();
+    const genre = genreFilter.value.toLowerCase();
+    const sort  = sortFilter.value;
+
+    let cards = getCards();
+    let visible = 0;
+
+    cards.forEach(card => {
+      const name  = card.dataset.name || '';
+      const genres = card.dataset.genre || '';
+      const matchQ = !q || name.includes(q) || genres.includes(q);
+      const matchG = !genre || genres.includes(genre);
+
+      if (matchQ && matchG) {
+        card.style.display = '';
+        visible++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    // Sorting — re-insert cards
+    const visibleCards = cards.filter(c => c.style.display !== 'none');
+    if (sort === 'name') {
+      visibleCards.sort((a, b) => (a.dataset.name || '').localeCompare(b.dataset.name || ''));
+    } else if (sort === 'year') {
+      visibleCards.sort((a, b) => parseInt(b.dataset.year) - parseInt(a.dataset.year));
+    } else {
+      visibleCards.sort((a, b) => {
+        const pa = a.dataset.popular === 'true' ? 0 : 1;
+        const pb = b.dataset.popular === 'true' ? 0 : 1;
+        return pa - pb;
+      });
+    }
+
+    visibleCards.forEach(c => grid.appendChild(c));
+
+    noResults.style.display = visible === 0 ? 'block' : 'none';
+    countEl.textContent = visible + ' game' + (visible !== 1 ? 's' : '');
+  }
+
+  searchInput.addEventListener('input', filterAndSort);
+  genreFilter.addEventListener('change', filterAndSort);
+  sortFilter.addEventListener('change', filterAndSort);
+</script>
+{% endblock %}

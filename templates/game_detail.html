@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+
+{% block title %}{{ game.name }} Optimized Settings — Potato Wiz{% endblock %}
+{% block meta_description %}Best PC graphics settings for {{ game.name }}. Get optimized settings for your GPU and achieve the best balance of FPS and visual quality.{% endblock %}
+
+{% block content %}
+
+<!-- ── Game Hero ──────────────────────────────────────── -->
+<div class="hero" style="min-height:300px;" aria-label="{{ game.name }} hero">
+  <div class="hero-bg" aria-hidden="true">
+    <img
+      src="{{ url_for('static', filename='images/games/' + game.image) }}"
+      alt="{{ game.name }} background"
+      class="hero-bg-img"
+      loading="eager"
+      onerror="this.style.display='none'"
+    >
+    <div class="hero-bg-overlay"></div>
+    <div class="hero-bg-bottom"></div>
+  </div>
+
+  <div class="hero-inner" style="padding:var(--space-12) var(--content-px);grid-template-columns:1fr;max-width:var(--max-width);">
+    <div>
+      <!-- Breadcrumb -->
+      <nav aria-label="Breadcrumb" style="margin-bottom:var(--space-4);">
+        <ol style="display:flex;align-items:center;gap:6px;list-style:none;font-size:var(--text-sm);color:var(--text-muted);">
+          <li><a href="{{ url_for('home.index') }}" style="color:var(--text-dim);">Home</a></li>
+          <li style="color:var(--text-dim);" aria-hidden="true">/</li>
+          <li><a href="{{ url_for('games.games_library') }}" style="color:var(--text-dim);">Games</a></li>
+          <li style="color:var(--text-dim);" aria-hidden="true">/</li>
+          <li aria-current="page" style="color:var(--text-muted);">{{ game.name }}</li>
+        </ol>
+      </nav>
+
+      <!-- Genres -->
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:var(--space-4);">
+        {% for genre in game.genre %}
+        <span class="genre-tag">{{ genre }}</span>
+        {% endfor %}
+      </div>
+
+      <h1 style="font-size:clamp(32px,5vw,62px);font-weight:900;letter-spacing:-0.03em;
+                 line-height:1.05;margin-bottom:var(--space-3);">
+        {{ game.name }}
+      </h1>
+
+      <p style="color:var(--text-muted);font-size:var(--text-base);max-width:520px;
+                line-height:1.7;margin-bottom:var(--space-6);">
+        {{ game.description }}
+      </p>
+
+      <!-- Meta chips -->
+      <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);">
+        <span class="pill" style="font-size:var(--text-xs);">
+          🗓️ {{ game.release_year }}
+        </span>
+        <span class="pill" style="font-size:var(--text-xs);">
+          🏢 {{ game.developer }}
+        </span>
+        <span class="pill" style="font-size:var(--text-xs);">
+          ⚙️ {{ game.engine }}
+        </span>
+        <span class="badge badge-green" style="font-size:var(--text-xs);">
+          ✓ {{ game.recommended_settings.status }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── Main Content ───────────────────────────────────── -->
+<div class="section">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:var(--space-8);align-items:start;"
+         class="detail-layout">
+
+      <!-- Left Column -->
+      <div>
+
+        <!-- ─ Recommended Settings ─ -->
+        <section aria-label="Recommended settings">
+          <h2 style="font-size:var(--text-2xl);font-weight:800;letter-spacing:-0.01em;
+                     margin-bottom:var(--space-6);display:flex;align-items:center;gap:10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                 stroke-linejoin="round" style="color:var(--yellow);" aria-hidden="true">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            Recommended Settings
+          </h2>
+
+          <div class="setting-card" style="margin-bottom:var(--space-6);">
+            {% if game.settings_detail %}
+            {% for s in game.settings_detail %}
+            <div class="setting-row" role="row">
+              <span class="setting-name">{{ s.name }}</span>
+              <div class="setting-value-group">
+                <span class="setting-value">{{ s.value }}</span>
+                {% if s.why %}
+                <span class="setting-why">{{ s.why }}</span>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <!-- Fallback to recommended_settings -->
+            {% set rs = game.recommended_settings %}
+            {% set rows = [
+              ('Graphics Preset', rs.preset, 'Recommended preset for this game.'),
+              ('Resolution', rs.resolution.replace('x','×'), 'Optimal rendering resolution.'),
+              ('Upscaling', rs.upscaling_mode, 'Upscaling mode for performance boost.'),
+              ('View Distance', rs.view_distance, ''),
+              ('Shadows', rs.shadows, 'Shadow quality setting.'),
+              ('Textures', rs.textures, 'Texture detail level.'),
+              ('Effects', rs.effects, 'Particle and post-process effects.'),
+              ('Anti-Aliasing', rs.anti_aliasing, 'Edge-smoothing technique.'),
+              ('Motion Blur', rs.motion_blur, 'Camera motion blur.'),
+              ('V-Sync', rs.vsync, 'Vertical sync for tear-free display.'),
+              ('FPS Limit', rs.fps_limit|string, 'Frame rate cap.'),
+            ] %}
+            {% for (name, val, why) in rows %}
+            <div class="setting-row" role="row">
+              <span class="setting-name">{{ name }}</span>
+              <div class="setting-value-group">
+                <span class="setting-value">{{ val }}</span>
+                {% if why %}
+                <span class="setting-why">{{ why }}</span>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+          </div>
+        </section>
+
+        <!-- ─ System Requirements ─ -->
+        <section style="margin-top:var(--space-10);" aria-label="System requirements">
+          <h2 style="font-size:var(--text-xl);font-weight:800;margin-bottom:var(--space-5);">
+            System Requirements
+          </h2>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-5);">
+
+            <!-- Minimum -->
+            <div class="setting-card">
+              <h3 style="font-size:var(--text-base);font-weight:700;
+                         color:var(--text-muted);margin-bottom:var(--space-3);
+                         padding-bottom:var(--space-3);border-bottom:1px solid var(--border);">
+                Minimum
+              </h3>
+              {% set min = game.minimum_specs %}
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div>
+                  <div style="font-size:11px;color:var(--text-dim);margin-bottom:3px;">CPU</div>
+                  <div style="font-size:var(--text-sm);font-weight:600;">{{ min.cpu }}</div>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:var(--text-dim);margin-bottom:3px;">GPU</div>
+                  <div style="font-size:var(--text-sm);font-weight:600;">{{ min.gpu }}</div>
+                </div>
+                <div style="display:flex;gap:var(--space-6);">
+                  <div>
+                    <div style="font-size:11px;color:var(--text-dim);margin-bottom:3px;">RAM</div>
+                    <div style="font-size:var(--text-sm);font-weight:600;">{{ min.ram_gb }} GB</div>
+                  </div>
+                  <div>
+                    <div style="font-size:11px;color:var(--text-dim);margin-bottom:3px;">VRAM</div>
+                    <div style="font-size:var(--text-sm);font-weight:600;">{{ min.vram_gb }} GB</div>
+                  </div>
+                  <div>
+                    <div style="font-size:11px;color:var(--text-dim);margin-bottom:3px;">Storage</div>
+                    <div style="font-size:var(--text-sm);font-weight:600;">{{ min.storage_gb }} GB</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recommended -->
+            <div class="setting-card" style="border-color:var(--border-glow);">
+              <h3 style="font-size:var(--text-base);font-weight:700;
+                         color:var(--yellow);margin-bottom:var(--space-3);
+                         padding-bottom:var(--space-3);border-bottom:1px solid var(--border);">
+                Recommended
+              </h3>
+              {% set rec = game.recommended_specs %}
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div>
+                  <div style="font-size:11px;color:var(--text-dim);margin-bottom:3px;">CPU</div>
+                  <div style="font-size:var(--text-sm);font-weight:600;">{{ rec.cpu }}</div>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:var(--text-dim);margin-bottom:3px;">GPU</div>
+                  <div style="font-size:var(--text-sm);font-weight:600;">{{ rec.gpu }}</div>
+                </div>
+                <div style="display:flex;gap:var(--space-6);">
+                  <div>
+                    <div style="font-size:11px;color:var(--text-dim);margin-bottom:3px;">RAM</div>
+                    <div style="font-size:var(--text-sm);font-weight:600;">{{ rec.ram_gb }} GB</div>
+                  </div>
+                  <div>
+                    <div style="font-size:11px;color:var(--text-dim);margin-bottom:3px;">VRAM</div>
+                    <div style="font-size:var(--text-sm);font-weight:600;">{{ rec.vram_gb }} GB</div>
+                  </div>
+                  <div>
+                    <div style="font-size:11px;color:var(--text-dim);margin-bottom:3px;">Storage</div>
+                    <div style="font-size:var(--text-sm);font-weight:600;">{{ rec.storage_gb }} GB</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ─ Supported Upscaling ─ -->
+        {% if game.upscaling_support %}
+        <section style="margin-top:var(--space-8);" aria-label="Upscaling support">
+          <h3 style="font-size:var(--text-lg);font-weight:700;margin-bottom:var(--space-4);">
+            Upscaling Support
+          </h3>
+          <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);">
+            {% for upscale in game.upscaling_support %}
+            <span class="badge badge-blue" style="font-size:var(--text-xs);">✓ {{ upscale }}</span>
+            {% endfor %}
+          </div>
+        </section>
+        {% endif %}
+
+      </div><!-- /left -->
+
+
+      <!-- Right Sidebar -->
+      <aside aria-label="Quick settings summary">
+
+        <!-- FPS summary card -->
+        <div class="setting-card"
+             style="background:linear-gradient(135deg,rgba(13,27,44,1),rgba(18,37,58,0.9));
+                    border-color:var(--border-light);margin-bottom:var(--space-5);">
+          <div style="display:flex;align-items:center;justify-content:space-between;
+                      padding-bottom:var(--space-4);border-bottom:1px solid var(--border);">
+            <div>
+              <div style="font-size:var(--text-xs);color:var(--text-dim);margin-bottom:2px;">
+                Estimated FPS
+              </div>
+              <div style="font-size:clamp(28px,3vw,38px);font-weight:900;color:var(--green);line-height:1;">
+                ~{{ game.recommended_settings.estimated_fps }}
+              </div>
+            </div>
+            <span class="badge badge-green" style="font-size:11px;">
+              ✓ {{ game.recommended_settings.status }}
+            </span>
+          </div>
+
+          <div style="padding-top:var(--space-4);display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;justify-content:space-between;font-size:var(--text-xs);">
+              <span style="color:var(--text-dim);">Preset</span>
+              <span style="font-weight:700;">{{ game.recommended_settings.preset }}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:var(--text-xs);">
+              <span style="color:var(--text-dim);">Resolution</span>
+              <span style="font-weight:700;">{{ game.recommended_settings.resolution.replace('x','×') }}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:var(--text-xs);">
+              <span style="color:var(--text-dim);">Upscaling</span>
+              <span style="font-weight:700;">{{ game.recommended_settings.upscaling_mode }}</span>
+            </div>
+          </div>
+
+          <a href="{{ url_for('optimizer.optimizer') }}?game={{ game.slug }}"
+             class="btn btn-primary" style="width:100%;justify-content:center;margin-top:var(--space-5);">
+            Optimize for My PC
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+        </div>
+
+        <!-- FPS Profiles per tier -->
+        <div class="setting-card" aria-label="FPS by GPU tier">
+          <h3 style="font-size:var(--text-base);font-weight:700;margin-bottom:var(--space-4);">
+            Expected FPS by GPU Tier
+          </h3>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            {% for tier, profile in game.fps_profiles.items() %}
+            <div style="display:flex;align-items:center;justify-content:space-between;
+                        padding:6px 0;border-bottom:1px solid rgba(28,52,76,0.4);">
+              <div>
+                <div style="font-size:var(--text-xs);font-weight:600;text-transform:capitalize;
+                            color:var(--text-muted);">{{ tier }}</div>
+                <div style="font-size:10px;color:var(--text-dim);">{{ profile.preset }}</div>
+              </div>
+              <span style="font-size:var(--text-sm);font-weight:800;
+                           color:{{ 'var(--green)' if profile.fps.startswith('6') or profile.fps.startswith('7') or profile.fps.startswith('8') or profile.fps.startswith('9') else 'var(--yellow)' }};">
+                {{ profile.fps }} FPS
+              </span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+      </aside>
+
+    </div><!-- /grid -->
+
+    <!-- ─ Related Games ─ -->
+    {% if related_games %}
+    <section style="margin-top:var(--space-16);" aria-label="Related games">
+      <h2 style="font-size:var(--text-2xl);font-weight:800;margin-bottom:var(--space-6);">
+        You might also like
+      </h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-5);"
+           class="related-grid">
+        {% for rg in related_games %}
+        <a href="{{ url_for('games.game_detail', slug=rg.slug) }}" class="lib-card" aria-label="{{ rg.name }}">
+          <div class="lib-card-art">
+            <img src="{{ url_for('static', filename='images/games/' + rg.image) }}"
+                 alt="{{ rg.name }}" class="lib-card-img" loading="lazy"
+                 onerror="this.style.display='none'">
+            <div class="lib-card-placeholder"
+                 style="background:{{ rg.image_placeholder }};" aria-hidden="true">🎮</div>
+            <div class="lib-card-overlay">
+              <div style="display:flex;gap:4px;">
+                {% for genre in rg.genre[:1] %}
+                <span class="genre-tag" style="font-size:10px;">{{ genre }}</span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="lib-card-body">
+            <div class="lib-card-name">{{ rg.name }}</div>
+            <div class="lib-card-row">
+              <span class="lib-card-label">Est. FPS</span>
+              <span class="lib-card-fps">~{{ rg.recommended_settings.estimated_fps }}</span>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  @media (max-width: 900px) {
+    .detail-layout { grid-template-columns: 1fr !important; }
+    .related-grid  { grid-template-columns: repeat(2, 1fr) !important; }
+  }
+  @media (max-width: 479px) {
+    .related-grid  { grid-template-columns: 1fr !important; }
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{% block meta_description %}Potato Wiz — Find optimized PC graphics settings for your favorite games. Play your games at their best.{% endblock %}">
+  <title>{% block title %}Potato Wiz — Play Smarter, Not Harder{% endblock %}</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥔</text></svg>">
+
+  <!-- Preconnect for fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- CSS Design System -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/optimizer.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ══════════════════════════════════════════
+       NAVIGATION
+  ══════════════════════════════════════════ -->
+  <nav class="site-nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+
+      <!-- Logo -->
+      <a href="{{ url_for('home.index') }}" class="nav-logo" aria-label="Potato Wiz Home">
+        <span class="nav-logo-icon" aria-hidden="true">🥔</span>
+        <span class="nav-logo-text">Potato <span class="wiz">Wiz</span></span>
+      </a>
+
+      <!-- Desktop nav links -->
+      <ul class="nav-links" role="list">
+        <li><a href="{{ url_for('home.index') }}"
+               class="{% if request.endpoint == 'home.index' %}active{% endif %}"
+               aria-current="{% if request.endpoint == 'home.index' %}page{% endif %}">Home</a></li>
+        <li><a href="{{ url_for('games.games_library') }}"
+               class="{% if request.endpoint and 'games.' in request.endpoint %}active{% endif %}"
+               aria-current="{% if request.endpoint and 'games.' in request.endpoint %}page{% endif %}">Games</a></li>
+        <li><a href="{{ url_for('pc.my_pc') }}"
+               class="{% if request.endpoint == 'pc.my_pc' %}active{% endif %}"
+               aria-current="{% if request.endpoint == 'pc.my_pc' %}page{% endif %}">My PC</a></li>
+        <li><a href="{{ url_for('optimizer.guides') }}"
+               class="{% if request.endpoint == 'optimizer.guides' %}active{% endif %}"
+               aria-current="{% if request.endpoint == 'optimizer.guides' %}page{% endif %}">Guides</a></li>
+        <li><a href="{{ url_for('optimizer.settings') }}"
+               class="{% if request.endpoint == 'optimizer.settings' %}active{% endif %}"
+               aria-current="{% if request.endpoint == 'optimizer.settings' %}page{% endif %}">Settings</a></li>
+        <li><a href="{{ url_for('optimizer.about') }}"
+               class="{% if request.endpoint == 'optimizer.about' %}active{% endif %}"
+               aria-current="{% if request.endpoint == 'optimizer.about' %}page{% endif %}">About</a></li>
+      </ul>
+
+      <!-- Desktop right side -->
+      <div class="nav-right">
+        <!-- Search -->
+        <div class="nav-search" role="search">
+          <input
+            type="text"
+            class="nav-search-input"
+            id="navSearchInput"
+            placeholder="Search games (e.g. Palworld, GTA V…)"
+            autocomplete="off"
+            aria-label="Search games"
+            aria-autocomplete="list"
+            aria-controls="searchDropdown"
+            aria-expanded="false"
+          >
+          <svg class="nav-search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <div class="search-dropdown" id="searchDropdown" role="listbox" aria-label="Search results"></div>
+        </div>
+
+        <!-- My PC button -->
+        <a href="{{ url_for('pc.my_pc') }}" class="nav-mypc-btn" aria-label="View My PC specs">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+               stroke-linejoin="round" aria-hidden="true">
+            <rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8M12 17v4"/>
+          </svg>
+          My PC
+        </a>
+      </div>
+
+      <!-- Mobile hamburger -->
+      <button class="nav-hamburger" id="hamburgerBtn" aria-label="Open mobile menu"
+              aria-expanded="false" aria-controls="mobileMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+    <div class="nav-mobile-menu" id="mobileMenu" role="navigation" aria-label="Mobile navigation">
+      <div class="nav-mobile-search">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="mobileSearchInput" placeholder="Search games…" autocomplete="off" aria-label="Search games mobile">
+      </div>
+      <a href="{{ url_for('home.index') }}" class="{% if request.endpoint == 'home.index' %}active{% endif %}">
+        🏠 Home
+      </a>
+      <a href="{{ url_for('games.games_library') }}" class="{% if request.endpoint and 'games.' in request.endpoint %}active{% endif %}">
+        🎮 Games
+      </a>
+      <a href="{{ url_for('pc.my_pc') }}" class="{% if request.endpoint == 'pc.my_pc' %}active{% endif %}">
+        🖥️ My PC
+      </a>
+      <a href="{{ url_for('optimizer.optimizer') }}" class="{% if request.endpoint == 'optimizer.optimizer' %}active{% endif %}">
+        ⚙️ Optimizer
+      </a>
+      <a href="{{ url_for('optimizer.guides') }}" class="{% if request.endpoint == 'optimizer.guides' %}active{% endif %}">
+        📖 Guides
+      </a>
+      <a href="{{ url_for('optimizer.settings') }}" class="{% if request.endpoint == 'optimizer.settings' %}active{% endif %}">
+        🔧 Settings
+      </a>
+      <a href="{{ url_for('optimizer.about') }}" class="{% if request.endpoint == 'optimizer.about' %}active{% endif %}">
+        ℹ️ About
+      </a>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════════════════ -->
+  <main class="main-content" id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ══════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════ -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <span aria-hidden="true">🥔</span>
+        Potato <span class="text-yellow">Wiz</span>
+      </div>
+
+      <nav aria-label="Footer navigation">
+        <ul class="footer-links" role="list">
+          <li><a href="{{ url_for('home.index') }}">Home</a></li>
+          <li><a href="{{ url_for('games.games_library') }}">Games</a></li>
+          <li><a href="{{ url_for('optimizer.optimizer') }}">Optimizer</a></li>
+          <li><a href="{{ url_for('optimizer.guides') }}">Guides</a></li>
+          <li><a href="{{ url_for('optimizer.about') }}">About</a></li>
+        </ul>
+      </nav>
+
+      <p class="footer-copy">
+        &copy; 2024 Potato Wiz &mdash; Play Smarter, Not Harder.
+      </p>
+    </div>
+  </footer>
+
+</div><!-- /page-wrapper -->
+
+<!-- Lucide icons init -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.lucide) lucide.createIcons();
+  });
+</script>
+
+<!-- Global JS -->
+<script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/search.js') }}" defer></script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

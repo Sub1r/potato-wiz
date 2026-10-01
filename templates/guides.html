@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Performance Guides — Potato Wiz{% endblock %}
+{% block meta_description %}PC gaming performance guides, tips, and tutorials to get the most out of your hardware.{% endblock %}
+
+{% block content %}
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="pill" style="margin-bottom:var(--space-4);">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+      Guides &amp; Tips
+    </div>
+    <h1>Performance Guides</h1>
+    <p>Learn how to squeeze every last frame from your PC.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="container">
+
+    <!-- Featured Guide -->
+    <div style="background:linear-gradient(135deg,var(--panel),var(--panel-hover));
+                border:1px solid var(--border-light);border-radius:var(--radius-lg);
+                padding:var(--space-8);margin-bottom:var(--space-10);
+                display:grid;grid-template-columns:1fr auto;gap:var(--space-6);align-items:center;">
+      <div>
+        <span class="badge badge-yellow" style="margin-bottom:var(--space-3);">⭐ Featured Guide</span>
+        <h2 style="font-size:clamp(22px,2.5vw,32px);font-weight:900;letter-spacing:-0.02em;
+                   margin-bottom:var(--space-3);">
+          The Complete PC Gaming Settings Handbook
+        </h2>
+        <p style="color:var(--text-muted);font-size:var(--text-base);max-width:520px;
+                  line-height:1.7;margin-bottom:var(--space-5);">
+          Everything you need to know about graphics settings — from resolution and anti-aliasing
+          to ray tracing and upscaling. Understand what each setting actually does before you change it.
+        </p>
+        <a href="#guide-1" class="btn btn-primary">
+          Read Guide →
+        </a>
+      </div>
+      <div aria-hidden="true" style="font-size:80px;opacity:0.3;">📖</div>
+    </div>
+
+    <!-- Guide Cards Grid -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+                gap:var(--space-5);" role="list">
+
+      <a href="#guide-basics" class="guide-card" role="listitem" aria-label="Understanding Graphics Settings">
+        <div class="guide-card-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+          </svg>
+        </div>
+        <div class="guide-card-content">
+          <h3>Understanding Graphics Settings</h3>
+          <p>Shadows, anti-aliasing, ambient occlusion — what do they actually do and how much FPS do they cost?</p>
+          <span style="display:inline-flex;align-items:center;gap:4px;color:var(--yellow);
+                       font-size:var(--text-sm);font-weight:600;margin-top:var(--space-3);">
+            Read Guide
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <a href="#guide-upscaling" class="guide-card" role="listitem" aria-label="FSR vs DLSS vs XeSS Explained">
+        <div class="guide-card-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
+          </svg>
+        </div>
+        <div class="guide-card-content">
+          <h3>FSR vs DLSS vs XeSS Explained</h3>
+          <p>A practical comparison of AMD, NVIDIA and Intel upscaling technologies. Which one should you use?</p>
+          <span style="display:inline-flex;align-items:center;gap:4px;color:var(--yellow);
+                       font-size:var(--text-sm);font-weight:600;margin-top:var(--space-3);">
+            Read Guide
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <a href="#guide-lowend" class="guide-card" role="listitem" aria-label="Low-End PC Optimization Guide">
+        <div class="guide-card-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <div class="guide-card-content">
+          <h3>Low-End PC Optimization Guide</h3>
+          <p>Playing on older hardware? These techniques can give you a surprising performance boost in any game.</p>
+          <span style="display:inline-flex;align-items:center;gap:4px;color:var(--yellow);
+                       font-size:var(--text-sm);font-weight:600;margin-top:var(--space-3);">
+            Read Guide
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <a href="#guide-resolution" class="guide-card" role="listitem" aria-label="Resolution vs. FPS Trade-offs">
+        <div class="guide-card-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2">
+            <rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8M12 17v4"/>
+          </svg>
+        </div>
+        <div class="guide-card-content">
+          <h3>Resolution vs. FPS Trade-offs</h3>
+          <p>1080p, 1440p, or 4K? Here's how to choose the right resolution for your GPU and monitor.</p>
+          <span style="display:inline-flex;align-items:center;gap:4px;color:var(--yellow);
+                       font-size:var(--text-sm);font-weight:600;margin-top:var(--space-3);">
+            Read Guide
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <a href="#guide-shadows" class="guide-card" role="listitem" aria-label="Why Shadows Kill Your FPS">
+        <div class="guide-card-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </div>
+        <div class="guide-card-content">
+          <h3>Why Shadows Kill Your FPS</h3>
+          <p>Shadow rendering is one of the most expensive settings. Understand the cost and how to reduce it.</p>
+          <span style="display:inline-flex;align-items:center;gap:4px;color:var(--yellow);
+                       font-size:var(--text-sm);font-weight:600;margin-top:var(--space-3);">
+            Read Guide
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <a href="#guide-unreal" class="guide-card" role="listitem" aria-label="Unreal Engine 5 Games Optimization">
+        <div class="guide-card-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+        </div>
+        <div class="guide-card-content">
+          <h3>Unreal Engine 5 Optimization</h3>
+          <p>UE5 games are demanding. Learn which settings matter most in games like Palworld and Hogwarts Legacy.</p>
+          <span style="display:inline-flex;align-items:center;gap:4px;color:var(--yellow);
+                       font-size:var(--text-sm);font-weight:600;margin-top:var(--space-3);">
+            Read Guide
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Quick Tips Section -->
+    <section style="margin-top:var(--space-16);" aria-label="Quick performance tips">
+      <h2 style="font-size:var(--text-2xl);font-weight:800;margin-bottom:var(--space-6);">
+        Quick Tips
+      </h2>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+                  gap:var(--space-4);" role="list">
+        {% set tips = [
+          ('🎯', 'Disable Motion Blur', 'Motion blur costs GPU work with no gameplay benefit. Turn it off for a sharper image.'),
+          ('🔢', 'Turn Off V-Sync', 'V-Sync adds input lag. Use a frame cap instead for smooth, low-latency gameplay.'),
+          ('💧', 'Shadows: Medium', 'Shadows are the #1 FPS killer. Medium looks great and recovers 15-25% performance.'),
+          ('🔍', 'Try FSR/DLSS', 'Upscaling can give you +30-50% FPS with minimal quality loss. Always try it first.'),
+          ('📺', 'Match Your Monitor', 'No need to target 144fps if your monitor is 60Hz. Cap it and save GPU heat.'),
+          ('⬆️', 'Update Drivers', 'New GPU drivers often include game-specific optimizations. Keep them current.'),
+        ] %}
+        {% for icon, title, desc in tips %}
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);
+                    padding:var(--space-5);" role="listitem">
+          <div style="font-size:24px;margin-bottom:var(--space-3);" aria-hidden="true">{{ icon }}</div>
+          <div style="font-size:var(--text-base);font-weight:700;margin-bottom:var(--space-2);">{{ title }}</div>
+          <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.6;">{{ desc }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+  </div>
+</div>
+
+{% endblock %}

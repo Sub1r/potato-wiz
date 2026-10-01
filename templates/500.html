@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Server Error — Potato Wiz{% endblock %}
+{% block content %}
+<div style="min-height:60vh;display:flex;align-items:center;justify-content:center;">
+  <div class="empty-state" style="max-width:480px;">
+    <div style="font-size:80px;margin-bottom:var(--space-5);" aria-hidden="true">💥</div>
+    <h1 style="font-size:clamp(28px,3vw,40px);font-weight:900;letter-spacing:-0.02em;
+               margin-bottom:var(--space-3);">Something Went Wrong</h1>
+    <p style="color:var(--text-muted);margin-bottom:var(--space-8);font-size:var(--text-md);">
+      An unexpected error occurred. The server hiccuped. Try refreshing the page.
+    </p>
+    <div style="display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap;">
+      <a href="{{ url_for('home.index') }}" class="btn btn-primary">Go Home</a>
+      <button onclick="window.location.reload()" class="btn btn-secondary">Retry</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

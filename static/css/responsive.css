@@ -1,0 +1,233 @@
+/* ============================================================
+   POTATO WIZ — Responsive Breakpoints
+   ============================================================ */
+
+/* ── Tablet: 768px – 1199px ───────────────────────────── */
+@media (max-width: 1199px) {
+
+  .hero-inner {
+    grid-template-columns: 1fr 320px;
+    gap: var(--space-8);
+  }
+
+  .optimizer-layout {
+    grid-template-columns: 300px 1fr;
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .feature-item:nth-child(2)::after { display: none; }
+  .feature-item:nth-child(4)::after { display: none; }
+
+  .feature-item:nth-child(1),
+  .feature-item:nth-child(2) {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-search-input { width: 220px; }
+  .nav-search-input:focus { width: 260px; }
+}
+
+/* ── Small desktop / large tablet ─────────────────────── */
+@media (max-width: 1024px) {
+
+  .hero-inner {
+    grid-template-columns: 1fr;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .hero-panel {
+    display: none; /* hide panel on small screens, show in mobile layout */
+  }
+
+  .hero-headline { font-size: clamp(36px, 6vw, 52px); }
+
+  .carousel-btn-prev { left: -12px; }
+  .carousel-btn-next { right: -12px; }
+}
+
+/* ── Tablet: max 900px ────────────────────────────────── */
+@media (max-width: 900px) {
+  .optimizer-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .optimizer-config {
+    position: static;
+  }
+
+  .result-setting-row {
+    grid-template-columns: 140px 1fr;
+  }
+}
+
+/* ── Mobile: < 768px ──────────────────────────────────── */
+@media (max-width: 767px) {
+
+  /* Nav */
+  .nav-links,
+  .nav-right {
+    display: none;
+  }
+
+  .nav-hamburger {
+    display: flex;
+  }
+
+  .nav-inner {
+    gap: var(--space-3);
+  }
+
+  /* Hero */
+  .hero {
+    min-height: unset;
+    padding-bottom: var(--space-8);
+  }
+
+  .hero-inner {
+    padding-top: var(--space-10);
+    padding-bottom: var(--space-8);
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+
+  .hero-content {
+    max-width: 100%;
+  }
+
+  .hero-headline {
+    font-size: clamp(32px, 9vw, 44px);
+  }
+
+  .hero-features {
+    gap: var(--space-4);
+  }
+
+  .hero-feature-item {
+    width: calc(50% - 8px);
+  }
+
+  /* Show panel below hero on mobile */
+  .hero-panel {
+    display: block;
+  }
+
+  /* Popular Games: horizontal scroll */
+  .carousel-track-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    margin: 0;
+    padding: 8px 0 16px;
+  }
+
+  .carousel-track-container::-webkit-scrollbar { display: none; }
+
+  .carousel-track {
+    transform: none !important; /* disable JS carousel transform on mobile */
+  }
+
+  .carousel-btn { display: none; }
+
+  .game-card { width: 160px; }
+
+  /* Features: stack vertically */
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-item::after { display: none !important; }
+  .feature-item { border-bottom: 1px solid var(--border); }
+  .feature-item:last-child { border-bottom: none; }
+
+  /* Section headers */
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  /* Library grid */
+  .library-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Settings */
+  .settings-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  /* Spec grid */
+  .spec-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Results */
+  .result-setting-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .result-setting-why { font-size: 11px; }
+
+  /* PC hero */
+  .pc-hero-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Footer */
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+}
+
+/* ── Very small mobile: < 480px ───────────────────────── */
+@media (max-width: 479px) {
+
+  :root {
+    --content-px: 16px;
+  }
+
+  .hero-feature-item {
+    width: 100%;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-buttons .btn {
+    justify-content: center;
+  }
+
+  .library-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .game-card { width: 145px; }
+
+  .priority-group { flex-wrap: wrap; }
+  .priority-btn { flex-basis: calc(50% - 2px); }
+}
+
+/* ── Large desktop: > 1440px ──────────────────────────── */
+@media (min-width: 1440px) {
+  .hero-inner {
+    grid-template-columns: 1fr 420px;
+  }
+}

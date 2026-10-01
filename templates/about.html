@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}About — Potato Wiz{% endblock %}
+
+{% block content %}
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="pill" style="margin-bottom:var(--space-4);">
+      <span aria-hidden="true">🥔</span> About Potato Wiz
+    </div>
+    <h1>Play Smarter, <span class="text-yellow">Not Harder.</span></h1>
+    <p>The story behind Potato Wiz and what we're building.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="container" style="max-width:800px;">
+
+    <!-- Mission -->
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);
+                padding:var(--space-10);margin-bottom:var(--space-8);">
+      <h2 style="font-size:clamp(22px,2.5vw,30px);font-weight:900;letter-spacing:-0.02em;
+                 margin-bottom:var(--space-5);">Our Mission</h2>
+      <p style="font-size:var(--text-md);color:var(--text-muted);line-height:1.8;margin-bottom:var(--space-4);">
+        PC gaming graphics settings are confusing. Most players either run everything on Ultra
+        and wonder why their PC sounds like a jet engine, or set everything to Low and miss out
+        on beautiful visuals entirely.
+      </p>
+      <p style="font-size:var(--text-md);color:var(--text-muted);line-height:1.8;">
+        <strong style="color:var(--text);">Potato Wiz</strong> was built to solve that problem.
+        Tell us what PC you have and what game you want to play, and we'll tell you exactly
+        how to configure it for the best possible experience — whether that's the smoothest
+        framerate or the most beautiful visuals, or the perfect balance between both.
+      </p>
+    </div>
+
+    <!-- How it works -->
+    <h2 style="font-size:var(--text-2xl);font-weight:800;margin-bottom:var(--space-6);">
+      How It Works
+    </h2>
+
+    <div style="display:flex;flex-direction:column;gap:var(--space-5);margin-bottom:var(--space-10);">
+      {% set steps = [
+        ('1', 'We detect your hardware', 'Potato Wiz automatically reads your GPU, CPU, RAM, and monitor specs — all locally, with no data sent anywhere.'),
+        ('2', 'You choose a game', 'Pick from our growing library of popular games. Each one has been analyzed for its performance characteristics.'),
+        ('3', 'You set your priorities', 'Tell us if you want maximum FPS, the best visuals, or a balanced experience.'),
+        ('4', 'We generate your settings', 'Our optimization engine calculates the ideal settings for your exact hardware and game combination.'),
+      ] %}
+      {% for num, title, desc in steps %}
+      <div style="display:flex;gap:var(--space-5);align-items:flex-start;">
+        <div style="width:40px;height:40px;background:var(--yellow-dim);border:1px solid rgba(255,210,31,0.3);
+                    border-radius:50%;display:flex;align-items:center;justify-content:center;
+                    font-size:var(--text-lg);font-weight:900;color:var(--yellow);flex-shrink:0;"
+             aria-hidden="true">{{ num }}</div>
+        <div>
+          <div style="font-size:var(--text-lg);font-weight:700;margin-bottom:var(--space-1);">{{ title }}</div>
+          <p style="color:var(--text-muted);font-size:var(--text-sm);line-height:1.7;">{{ desc }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Privacy note -->
+    <div style="background:var(--green-dim);border:1px solid rgba(20,217,154,0.2);
+                border-radius:var(--radius-md);padding:var(--space-5) var(--space-6);
+                display:flex;gap:var(--space-4);align-items:center;">
+      <span style="font-size:24px;" aria-hidden="true">🔒</span>
+      <div>
+        <div style="font-weight:700;margin-bottom:4px;color:var(--green);">100% Local &amp; Private</div>
+        <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.6;">
+          All hardware detection runs locally on your machine. No data is transmitted to any server.
+          Your specs never leave your computer.
+        </p>
+      </div>
+    </div>
+
+    <!-- Stack -->
+    <section style="margin-top:var(--space-10);" aria-label="Technology stack">
+      <h2 style="font-size:var(--text-xl);font-weight:800;margin-bottom:var(--space-5);">
+        Built With
+      </h2>
+      <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);" role="list">
+        {% for tech in ['Python 3', 'Flask', 'Jinja2', 'Vanilla JS', 'CSS Grid', 'psutil', 'SQLite'] %}
+        <span class="badge badge-blue" style="font-size:var(--text-xs);" role="listitem">{{ tech }}</span>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <div style="text-align:center;margin-top:var(--space-12);">
+      <a href="{{ url_for('optimizer.optimizer') }}" class="btn btn-primary btn-lg">
+        Try the Optimizer →
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

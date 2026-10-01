@@ -1,0 +1,413 @@
+{% extends "base.html" %}
+
+{% block title %}Potato Wiz — Play Your Games at Their Best{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════════════════
+     HERO SECTION
+══════════════════════════════════════════════════════ -->
+<section class="hero" aria-label="Hero">
+
+  <!-- Background -->
+  <div class="hero-bg" aria-hidden="true">
+    <img
+      src="{{ url_for('static', filename='images/hero/hero-bg.jpg') }}"
+      alt=""
+      class="hero-bg-img"
+      loading="eager"
+      onerror="this.style.display='none'"
+    >
+    <div class="hero-bg-overlay"></div>
+    <div class="hero-bg-bottom"></div>
+  </div>
+
+  <div class="hero-inner">
+
+    <!-- Left: Hero Content -->
+    <div class="hero-content">
+
+      <!-- Pill label -->
+      <div class="hero-pill" role="note">
+        <span aria-hidden="true">🎮</span>
+        <span>Play Smarter, Not Harder.</span>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="hero-headline">
+        <span class="line-white">Play your games</span>
+        <span class="line-yellow">at their best.</span>
+      </h1>
+
+      <!-- Body copy -->
+      <p class="hero-body">
+        Get optimized graphics, performance and visual quality settings for your PC,
+        with the perfect balance for smooth gameplay and the best possible visuals.
+      </p>
+
+      <!-- CTA Buttons -->
+      <div class="hero-buttons">
+        <a href="{{ url_for('optimizer.optimizer') }}" class="btn btn-primary btn-lg" aria-label="Find My Settings">
+          Find My Settings
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+               stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="{{ url_for('games.games_library') }}" class="btn btn-secondary btn-lg">
+          Explore Games
+        </a>
+      </div>
+
+      <!-- Feature highlights -->
+      <div class="hero-features" role="list">
+
+        <div class="hero-feature-item" role="listitem">
+          <div class="hero-feature-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                 stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div class="hero-feature-text">
+            <span class="hero-feature-title">Optimized Settings</span>
+            <span class="hero-feature-sub">For Your PC</span>
+          </div>
+        </div>
+
+        <div class="hero-feature-item" role="listitem">
+          <div class="hero-feature-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                 stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="hero-feature-text">
+            <span class="hero-feature-title">Higher FPS</span>
+            <span class="hero-feature-sub">Smoother Gameplay</span>
+          </div>
+        </div>
+
+        <div class="hero-feature-item" role="listitem">
+          <div class="hero-feature-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                 stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div class="hero-feature-text">
+            <span class="hero-feature-title">Better Visuals</span>
+            <span class="hero-feature-sub">No Guesswork</span>
+          </div>
+        </div>
+
+        <div class="hero-feature-item" role="listitem">
+          <div class="hero-feature-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                 stroke-linejoin="round"><path d="M11 17a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4H11v-4Z"/><path d="M8 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v10H8V11Z"/><path d="M5 15a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v6H5v-6Z"/></svg>
+          </div>
+          <div class="hero-feature-text">
+            <span class="hero-feature-title">Game-Specific</span>
+            <span class="hero-feature-sub">Recommendations</span>
+          </div>
+        </div>
+
+      </div><!-- /hero-features -->
+    </div><!-- /hero-content -->
+
+    <!-- Right: Recommendation Panel -->
+    {% if featured_game %}
+    <aside class="hero-panel" aria-label="Recommended settings preview">
+
+      <!-- Game thumbnail -->
+      <div class="panel-game-thumb">
+        <img
+          src="{{ url_for('static', filename='images/games/' + featured_game.image) }}"
+          alt="{{ featured_game.name }} cover art"
+          loading="lazy"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+        >
+        <div class="panel-game-thumb-placeholder"
+             style="display:none; background:{{ featured_game.image_placeholder }};">🎮</div>
+        <div class="panel-game-thumb-overlay" aria-hidden="true"></div>
+      </div>
+
+      <div class="panel-body">
+        <!-- Game info -->
+        <div class="panel-game-info">
+          <div>
+            <div class="panel-game-name">{{ featured_game.name }}</div>
+            <div class="panel-game-subtitle">Optimized for your PC</div>
+          </div>
+          <span class="badge badge-green" aria-label="Status: Playable">
+            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Playable
+          </span>
+        </div>
+
+        <!-- Settings rows -->
+        <div class="panel-settings" role="list">
+          {% set rs = featured_game.recommended_settings %}
+
+          <div class="panel-setting-row" role="listitem">
+            <span class="panel-setting-label">Graphics Preset</span>
+            <select class="panel-select" aria-label="Graphics preset">
+              <option selected>{{ rs.preset }} (Balanced)</option>
+              <option>Low</option>
+              <option>Medium</option>
+              <option>Ultra</option>
+            </select>
+          </div>
+
+          <div class="panel-setting-row" role="listitem">
+            <span class="panel-setting-label">Resolution</span>
+            <span class="panel-setting-value">{{ rs.resolution.replace('x', ' × ') }}</span>
+          </div>
+
+          <div class="panel-setting-row" role="listitem">
+            <span class="panel-setting-label">FSR</span>
+            <select class="panel-select" aria-label="FSR mode">
+              <option selected>{{ rs.upscaling_mode }}</option>
+              <option>Off</option>
+              <option>Quality</option>
+              <option>Performance</option>
+            </select>
+          </div>
+
+          <div class="panel-setting-row" role="listitem">
+            <span class="panel-setting-label">View Distance</span>
+            <span class="panel-setting-value">{{ rs.view_distance }}</span>
+          </div>
+
+          <div class="panel-setting-row" role="listitem">
+            <span class="panel-setting-label">Shadows</span>
+            <span class="panel-setting-value">{{ rs.shadows }}</span>
+          </div>
+
+          <div class="panel-setting-row" role="listitem">
+            <span class="panel-setting-label">Effects</span>
+            <span class="panel-setting-value">{{ rs.effects }}</span>
+          </div>
+
+          <div class="panel-setting-row" role="listitem">
+            <span class="panel-setting-label">FPS Limit</span>
+            <span class="panel-setting-value">{{ rs.fps_limit }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer CTA -->
+      <div class="panel-footer">
+        <a href="{{ url_for('games.game_detail', slug=featured_game.slug) }}"
+           class="btn btn-primary panel-cta">
+          Get Full Settings
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+        <a href="{{ url_for('games.game_detail', slug=featured_game.slug) }}#fps" class="panel-fps-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
+          </svg>
+          See FPS Comparison
+        </a>
+      </div>
+
+    </aside>
+    {% endif %}
+
+  </div><!-- /hero-inner -->
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════
+     POPULAR GAMES
+══════════════════════════════════════════════════════ -->
+<section class="popular-games-section section" aria-label="Popular games">
+  <div class="container">
+
+    <div class="section-header">
+      <div class="section-title-group">
+        <h2 class="section-label">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round" aria-hidden="true">
+            <line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>
+            <path d="M18 9a9 9 0 0 1-9 9"/>
+          </svg>
+          Popular Games
+        </h2>
+        <p class="section-subtitle">Find optimized settings for the latest and most popular games.</p>
+      </div>
+      <a href="{{ url_for('games.games_library') }}" class="section-link" aria-label="View all games">
+        View All Games
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Carousel -->
+    <div class="carousel-wrapper" id="gamesCarousel" role="region" aria-label="Game cards carousel">
+
+      <button class="carousel-btn carousel-btn-prev disabled" id="carouselPrev"
+              aria-label="Previous games" aria-controls="carouselTrack">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+
+      <div class="carousel-track-container">
+        <div class="carousel-track" id="carouselTrack" role="list">
+          {% for game in popular_games %}
+          <a href="{{ url_for('games.game_detail', slug=game.slug) }}"
+             class="game-card {% if loop.first %}active{% endif %}"
+             role="listitem"
+             aria-label="{{ game.name }}">
+
+            <!-- Artwork -->
+            <div class="game-card-art">
+              <img
+                src="{{ url_for('static', filename='images/games/' + game.image) }}"
+                alt="{{ game.name }} cover art"
+                class="game-card-img"
+                loading="lazy"
+                onerror="this.style.display='none'"
+              >
+              <div class="game-card-placeholder"
+                   style="background:{{ game.image_placeholder }};" aria-hidden="true">🎮</div>
+            </div>
+
+            <!-- Info -->
+            <div class="game-card-info">
+              <div class="game-card-name">{{ game.name }}</div>
+              <div class="game-card-genres">
+                {% for genre in game.genre[:2] %}
+                <span class="genre-tag">{{ genre }}</span>
+                {% endfor %}
+              </div>
+            </div>
+
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <button class="carousel-btn carousel-btn-next" id="carouselNext"
+              aria-label="Next games" aria-controls="carouselTrack">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </button>
+
+    </div><!-- /carousel-wrapper -->
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════
+     FEATURES STRIP
+══════════════════════════════════════════════════════ -->
+<section class="features-section" aria-label="Key features">
+  <div class="container">
+    <div class="features-grid" role="list">
+
+      <div class="feature-item" role="listitem">
+        <div class="feature-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/>
+            <path d="M8 21h8M12 17v4"/>
+          </svg>
+        </div>
+        <div>
+          <div class="feature-title">Auto-Detect Your PC</div>
+          <p class="feature-desc">Get personalized recommendations based on your actual hardware.</p>
+        </div>
+      </div>
+
+      <div class="feature-item" role="listitem">
+        <div class="feature-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div>
+          <div class="feature-title">Game-Specific Optimization</div>
+          <p class="feature-desc">Settings tailored for each game and your performance goals.</p>
+        </div>
+      </div>
+
+      <div class="feature-item" role="listitem">
+        <div class="feature-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        </div>
+        <div>
+          <div class="feature-title">FPS Estimates</div>
+          <p class="feature-desc">See expected performance at different settings before you change them.</p>
+        </div>
+      </div>
+
+      <div class="feature-item" role="listitem">
+        <div class="feature-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <div>
+          <div class="feature-title">Guides &amp; Tips</div>
+          <p class="feature-desc">Learn how to improve performance and visual quality even more.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════
+     BOTTOM CTA STRIP
+══════════════════════════════════════════════════════ -->
+<section class="section" style="padding:var(--space-16) 0;" aria-label="Call to action">
+  <div class="container" style="text-align:center;">
+    <p class="text-muted" style="font-size:var(--text-sm);letter-spacing:0.06em;text-transform:uppercase;font-weight:600;margin-bottom:var(--space-4);">
+      Ready to optimize?
+    </p>
+    <h2 style="font-size:clamp(26px,3vw,38px);font-weight:900;letter-spacing:-0.02em;margin-bottom:var(--space-3);">
+      Tell us your PC. <span class="text-yellow">We'll do the rest.</span>
+    </h2>
+    <p style="color:var(--text-muted);max-width:440px;margin:0 auto var(--space-8);">
+      Get game-specific settings tuned for your exact hardware in seconds. No guesswork needed.
+    </p>
+    <div style="display:flex;justify-content:center;gap:var(--space-3);flex-wrap:wrap;">
+      <a href="{{ url_for('optimizer.optimizer') }}" class="btn btn-primary btn-lg">
+        Start Optimizing
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+      <a href="{{ url_for('pc.my_pc') }}" class="btn btn-secondary btn-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8M12 17v4"/>
+        </svg>
+        Detect My PC
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/carousel.js') }}" defer></script>
+{% endblock %}

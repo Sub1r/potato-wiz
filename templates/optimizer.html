@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Settings Optimizer — Potato Wiz{% endblock %}
+{% block meta_description %}Get AI-optimized graphics settings for any PC game based on your hardware.{% endblock %}
+
+{% block content %}
+
+<!-- Page Hero -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="pill" style="margin-bottom:var(--space-4);">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+      Settings Optimizer
+    </div>
+    <h1>Find Your Perfect Settings</h1>
+    <p>Tell us your game and preferences. We'll calculate the best graphics settings for your PC.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="container">
+    <div class="optimizer-layout">
+
+      <!-- ── Left: Config Panel ──────────────────────────── -->
+      <aside>
+        <div class="optimizer-config" aria-label="Optimization configuration">
+
+          <h2 class="optimizer-config-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/>
+              <line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/>
+              <line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/>
+              <line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/>
+              <line x1="17" x2="23" y1="16" y2="16"/>
+            </svg>
+            Configure
+          </h2>
+
+          <form id="optimizerForm" aria-label="Optimization settings">
+
+            <!-- Game select -->
+            <div class="form-group">
+              <label for="gameSelect" class="form-label">Select Game</label>
+              <select id="gameSelect" class="form-select" required aria-required="true">
+                <option value="">Choose a game…</option>
+                {% for game in games %}
+                <option value="{{ game.slug }}"
+                        {% if selected_game and selected_game.slug == game.slug %}selected{% endif %}>
+                  {{ game.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Priority -->
+            <div class="form-group">
+              <label class="form-label" id="priorityLabel">Priority</label>
+              <div class="priority-group" role="group" aria-labelledby="priorityLabel">
+                <button type="button" class="priority-btn" data-value="fps" aria-pressed="false">
+                  ⚡ FPS
+                </button>
+                <button type="button" class="priority-btn active" data-value="balanced" aria-pressed="true">
+                  ⚖️ Balanced
+                </button>
+                <button type="button" class="priority-btn" data-value="quality" aria-pressed="false">
+                  💎 Quality
+                </button>
+              </div>
+              <input type="hidden" id="priorityInput" value="balanced">
+            </div>
+
+            <!-- Resolution -->
+            <div class="form-group">
+              <label for="resolutionSelect" class="form-label">Resolution</label>
+              <select id="resolutionSelect" class="form-select">
+                <option value="1280x720">1280 × 720 (720p)</option>
+                <option value="1920x1080" selected>1920 × 1080 (1080p)</option>
+                <option value="2560x1440">2560 × 1440 (1440p)</option>
+                <option value="3840x2160">3840 × 2160 (4K)</option>
+              </select>
+            </div>
+
+            <!-- Target FPS -->
+            <div class="form-group">
+              <label for="fpsRange" class="form-label">Target FPS</label>
+              <div class="fps-value-display">
+                <div>
+                  <span class="fps-current-val" id="fpsDisplay">60</span>
+                  <span class="fps-current-label"> fps</span>
+                </div>
+                <span style="font-size:var(--text-xs);color:var(--text-dim);">target</span>
+              </div>
+              <input type="range" id="fpsRange" min="30" max="144" step="1" value="60"
+                     aria-label="Target FPS slider" aria-valuemin="30" aria-valuemax="144"
+                     aria-valuenow="60" aria-valuetext="60 fps">
+              <div class="fps-markers" aria-hidden="true">
+                <span>30</span><span>60</span><span>90</span><span>120</span><span>144</span>
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary"
+                    style="width:100%;justify-content:center;margin-top:var(--space-2);"
+                    id="optimizeBtn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              Generate Settings
+            </button>
+
+          </form>
+
+          <!-- My PC chip -->
+          <div style="margin-top:var(--space-5);padding-top:var(--space-5);border-top:1px solid var(--border);">
+            <p style="font-size:var(--text-xs);color:var(--text-dim);margin-bottom:var(--space-3);">
+              Settings are based on your detected hardware:
+            </p>
+            <a href="{{ url_for('pc.my_pc') }}"
+               style="display:flex;align-items:center;gap:8px;font-size:var(--text-xs);
+                      color:var(--blue);font-weight:600;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8M12 17v4"/>
+              </svg>
+              View My PC Specs →
+            </a>
+          </div>
+
+        </div>
+      </aside>
+
+
+      <!-- ── Right: Results ─────────────────────────────── -->
+      <div class="optimizer-results" id="optimizerResults" aria-live="polite">
+
+        <!-- Placeholder state -->
+        <div class="results-placeholder" id="resultsPlaceholder">
+          <div class="results-placeholder-icon" aria-hidden="true">⚙️</div>
+          <h3 style="font-size:var(--text-xl);font-weight:700;margin-bottom:var(--space-2);">
+            Select a game and click "Generate Settings"
+          </h3>
+          <p style="color:var(--text-muted);font-size:var(--text-sm);">
+            Your personalized optimization results will appear here.
+          </p>
+        </div>
+
+        <!-- Loading state -->
+        <div class="optimizer-loading" id="optimizerLoading" aria-label="Generating settings…">
+          <div class="spinner-lg" role="status" aria-label="Loading"></div>
+          <p style="font-size:var(--text-sm);">Analyzing your hardware and generating settings…</p>
+        </div>
+
+        <!-- Results (populated by JS) -->
+        <div id="resultsContent" style="display:none;"></div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/optimizer.js') }}" defer></script>
+{% endblock %}
