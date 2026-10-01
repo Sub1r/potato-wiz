@@ -174,6 +174,20 @@
                     <div style="font-size:var(--text-sm);font-weight:600;">{{ min.storage_gb }} GB</div>
                   </div>
                 </div>
+                {% if min.os or min.internet %}
+                <div>
+                  {% if min.os %}
+                  <div style="font-size:11px;color:var(--text-dim);margin-bottom:3px;">OS</div>
+                  <div style="font-size:var(--text-sm);font-weight:600;">{{ min.os }}</div>
+                  {% endif %}
+                </div>
+                {% if min.internet %}
+                <div>
+                  <div style="font-size:11px;color:var(--text-dim);margin-bottom:3px;">Internet</div>
+                  <div style="font-size:var(--text-sm);font-weight:600;">{{ min.internet }}</div>
+                </div>
+                {% endif %}
+                {% endif %}
               </div>
             </div>
 
@@ -208,6 +222,16 @@
                     <div style="font-size:var(--text-sm);font-weight:600;">{{ rec.storage_gb }} GB</div>
                   </div>
                 </div>
+                {% if not rec.cpu and not rec.gpu and not rec.ram_gb and not rec.vram_gb %}
+                <div>
+                  <div style="font-size:11px;color:var(--text-dim);margin-bottom:3px;">Not published</div>
+                  <div style="font-size:var(--text-sm);font-weight:600;color:var(--text-muted);line-height:1.5;">
+                    The developer publishes minimum requirements only, so no
+                    recommended specification is listed. Potato Wiz derives
+                    guidance from your hardware and current research instead.
+                  </div>
+                </div>
+                {% endif %}
               </div>
             </div>
 
@@ -244,9 +268,18 @@
               <div style="font-size:var(--text-xs);color:var(--text-dim);margin-bottom:2px;">
                 Estimated FPS
               </div>
+              {% if game.recommended_settings.estimated_fps %}
               <div style="font-size:clamp(28px,3vw,38px);font-weight:900;color:var(--green);line-height:1;">
                 ~{{ game.recommended_settings.estimated_fps }}
               </div>
+              {% else %}
+              <div style="font-size:clamp(18px,2.2vw,24px);font-weight:900;color:var(--text-muted);line-height:1.2;">
+                AI research
+              </div>
+              <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">
+                No stored benchmark for this game
+              </div>
+              {% endif %}
             </div>
             <span class="badge badge-green" style="font-size:11px;">
               ✓ {{ game.recommended_settings.status }}
@@ -279,6 +312,7 @@
         </div>
 
         <!-- FPS Profiles per tier -->
+        {% if game.fps_profiles %}
         <div class="setting-card" aria-label="FPS by GPU tier">
           <h3 style="font-size:var(--text-base);font-weight:700;margin-bottom:var(--space-4);">
             Expected FPS by GPU Tier
@@ -300,6 +334,19 @@
             {% endfor %}
           </div>
         </div>
+        {% else %}
+        <div class="setting-card" aria-label="Performance data">
+          <h3 style="font-size:var(--text-base);font-weight:700;margin-bottom:var(--space-3);">
+            Performance Data
+          </h3>
+          <p style="font-size:var(--text-xs);color:var(--text-muted);line-height:1.6;margin:0;">
+            Potato Wiz has no stored benchmark data for this game, so no FPS
+            figures are shown here. Use <strong>Optimize with AI</strong> and the
+            screenshot reader for guidance based on your hardware and current
+            sources.
+          </p>
+        </div>
+        {% endif %}
 
       </aside>
 

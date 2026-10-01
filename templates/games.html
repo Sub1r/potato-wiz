@@ -119,7 +119,11 @@
             </div>
             <div class="lib-card-row">
               <span class="lib-card-label">Expected FPS</span>
+              {% if game.recommended_settings.estimated_fps %}
               <span class="lib-card-fps">~{{ game.recommended_settings.estimated_fps }}</span>
+              {% else %}
+              <span class="lib-card-fps" style="color:var(--text-dim);font-size:11px;">AI research</span>
+              {% endif %}
             </div>
             <div class="lib-card-row">
               <span class="lib-card-label">Status</span>

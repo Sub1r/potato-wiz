@@ -668,5 +668,87 @@
       { "name": "V-Sync",           "value": "Off",        "why": "Prevents the VSync penalty in Bethesda's engine." },
       { "name": "FPS Limit",        "value": "60",         "why": "Consistent 60fps through cities and complex areas." }
     ]
+  },
+  {
+    "id": 11,
+    "name": "Warframe",
+    "slug": "warframe",
+    "genre": ["Third Person Shooter", "Action", "Co-op", "Sci-Fi"],
+    "description": "Warframe is a fast-paced third-person sci-fi action game set in the Origin System, combining parkour movement, ranged and melee combat, co-op missions, and extensive customization.",
+    "image": "warframe.jpg",
+    "image_placeholder": "#0f2b3d",
+    "release_year": 2013,
+    "developer": "Digital Extremes",
+    "engine": "Evolution Engine",
+    "popular": true,
+    "featured": false,
+    "game_type": "Free-to-play online game",
+    "resolutions": ["1280x720", "1920x1080", "2560x1440", "3840x2160"],
+    "graphics_api": ["DirectX 11", "DirectX 12"],
+    "graphics_api_notes": "Warframe supports DirectX 11 and DirectX 12. DirectX 12 requires Windows 10 20H2 or Windows 11.",
+    "upscaling_support": ["FSR", "FSR3", "DLSS", "Dynamic Resolution"],
+    "upscaling_support_notes": "Warframe has shipped modern upscaling support and still receives graphics work (for example FSR3 implementation optimizations for DirectX 11 in Update 44 / Iceblade of Narin). This list is capability metadata, not a claim about the exact options offered by the current build - the AI research layer verifies the live options at optimization time.",
+    "sources": [
+      { "type": "OFFICIAL_INFORMATION", "title": "What are the minimum PC specs for Warframe?", "url": "https://support.warframe.com/hc/en-us/articles/200182230-What-are-the-minimum-PC-specs-for-Warframe" },
+      { "type": "OFFICIAL_INFORMATION", "title": "What should I do if my game keeps crashing?", "url": "https://support.warframe.com/hc/en-us/articles/38628896413581-What-should-I-do-if-my-game-keeps-crashing" },
+      { "type": "OFFICIAL_INFORMATION", "title": "Warframe PC Update 33.0.0 patch notes", "url": "https://www.warframe.com/en/patch-notes/pc/33-0-0" },
+      { "type": "OFFICIAL_INFORMATION", "title": "Warframe PC Update 44.0.0 patch notes (Iceblade of Narin)", "url": "https://www.warframe.com/en/patch-notes/pc/44-0-0" }
+    ],
+    "minimum_specs": {
+      "os": "Windows 7 64-bit",
+      "cpu": "Intel Core i7-860 or AMD FX-4170",
+      "ram_gb": 4,
+      "gpu": "DirectX 11+ compatible video card",
+      "vram_gb": 2,
+      "storage_gb": 75,
+      "internet": "Broadband"
+    },
+    "recommended_specs": {
+      "os": "",
+      "cpu": "",
+      "ram_gb": 0,
+      "gpu": "",
+      "vram_gb": 0,
+      "storage_gb": 75,
+      "internet": "Broadband"
+    },
+    "recommended_specs_notes": "Digital Extremes publishes minimum PC specs only; there is no official recommended PC specification, so these fields are intentionally empty. Potato Wiz derives guidance from detected hardware plus current research.",
+    "fps_profiles": {},
+    "fps_profiles_notes": "Intentionally empty. No verified Warframe benchmark dataset is stored, so Potato Wiz presents no fabricated FPS ranges and the AI optimizer researches current performance instead.",
+    "recommended_settings": {
+      "preset": "Medium",
+      "resolution": "1920x1080",
+      "upscaling": "Off",
+      "upscaling_mode": "Off",
+      "view_distance": "Medium",
+      "shadows": "Low",
+      "effects": "Low",
+      "textures": "Medium",
+      "anti_aliasing": "SMAA 1x",
+      "motion_blur": "Off",
+      "vsync": "Off",
+      "fps_limit": 0,
+      "estimated_fps": "",
+      "status": "AI Research"
+    },
+    "recommended_settings_notes": "Conservative baseline only, not measured benchmark data. Warframe is a free-to-play online game that receives frequent rendering updates, so the AI optimizer researches the current build and the user's actual hardware before recommending values.",
+    "settings_detail": [
+      { "name": "Graphics Preset", "value": "Medium",           "why": "Baseline starting point only; Warframe presets scale several systems at once and the AI optimizer refines this for your hardware." },
+      { "name": "Resolution",      "value": "1920\u00d71080",   "why": "Native 1080p is the common baseline target for the potato-class GPUs Warframe still supports." },
+      { "name": "Graphics Engine", "value": "Enhanced",         "why": "Warframe PC uses the Enhanced Graphics Renderer; the classic renderer is the legacy option." },
+      { "name": "Graphics API",    "value": "DirectX 11",       "why": "DirectX 11 is the broadly compatible default; DirectX 12 requires Windows 10 20H2 or Windows 11." },
+      { "name": "Upscaling",       "value": "Off",              "why": "Upscaling is a performance tool; the AI optimizer researches which upscalers the current build offers." },
+      { "name": "Dynamic Resolution", "value": "Off",            "why": "Trades sharpness for frames - useful on very weak GPUs, verified per build." },
+      { "name": "SSAO Quality",    "value": "Low",              "why": "Ambient occlusion is a per-pixel cost with little gameplay value in Warframe." },
+      { "name": "Sun Shadows",     "value": "Low",              "why": "Sun shadows are among the heaviest options in the Warframe renderer at low resolutions." },
+      { "name": "Enhanced Decals", "value": "Low",              "why": "Decal quality scales with on-screen effects, which matters most in dense missions." },
+      { "name": "GPU Particles Quality", "value": "Low",          "why": "Particle quality drives GPU load during combat; lower values cost little visually." },
+      { "name": "Texture Quality", "value": "Medium",           "why": "Warframe ships compressed textures, so Medium is a safe baseline on low VRAM." },
+      { "name": "Shadow Quality",  "value": "Low",              "why": "Keeps dynamic lighting readable without the resolution-dependent cost of high shadows." },
+      { "name": "Effects Quality", "value": "Low",              "why": "Ability and weapon effects scale with combat density, where low-end GPUs struggle." },
+      { "name": "Anti-Aliasing",   "value": "SMAA 1x",          "why": "Cheap edge smoothing without the cost of higher AA modes." },
+      { "name": "Motion Blur",     "value": "Off",              "why": "Motion blur adds cost with no competitive benefit in a fast movement shooter." },
+      { "name": "V-Sync",          "value": "Off",              "why": "V-Sync adds input latency; an FPS cap is the better choice for Warframe's movement." }
+    ]
   }
 ]
